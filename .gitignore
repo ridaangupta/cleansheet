@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# Generated media and datasets (rebuild with `make synth`)
+media/
+footage/*.mp4
+footage/*.mov
+footage/*.mkv
+footage/*.webm
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

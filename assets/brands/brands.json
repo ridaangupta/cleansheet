@@ -1,0 +1,63 @@
+{
+  "size": [
+    800,
+    200
+  ],
+  "brands": [
+    {
+      "name": "BetNova",
+      "category": "gambling",
+      "file": "betnova.png"
+    },
+    {
+      "name": "SpinStake",
+      "category": "gambling",
+      "file": "spinstake.png"
+    },
+    {
+      "name": "LuckLadder",
+      "category": "gambling",
+      "file": "luckladder.png"
+    },
+    {
+      "name": "Hopfield Lager",
+      "category": "alcohol",
+      "file": "hopfield-lager.png"
+    },
+    {
+      "name": "Marrow Rum",
+      "category": "alcohol",
+      "file": "marrow-rum.png"
+    },
+    {
+      "name": "Northpeak Mobile",
+      "category": "neutral",
+      "file": "northpeak-mobile.png"
+    },
+    {
+      "name": "Velocet Sportswear",
+      "category": "neutral",
+      "file": "velocet-sportswear.png"
+    },
+    {
+      "name": "Fernvale Market",
+      "category": "replacement",
+      "file": "fernvale-market.png"
+    },
+    {
+      "name": "Quillo Juice",
+      "category": "replacement",
+      "file": "quillo-juice.png"
+    },
+    {
+      "name": "Tidewell Bank",
+      "category": "replacement",
+      "file": "tidewell-bank.png"
+    },
+    {
+      "name": "Kitebox Toys",
+      "category": "replacement",
+      "file": "kitebox-toys.png"
+    }
+  ]
+}

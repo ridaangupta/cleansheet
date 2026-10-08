@@ -1,0 +1,8 @@
+{
+  "project": {
+    "identifier": "cleansheet"
+  },
+  "platform": {
+    "default": "vega_os"
+  }
+}

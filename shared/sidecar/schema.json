@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cleansheet.dev/schemas/sidecar/v1.json",
+  "title": "Cleansheet sidecar track",
+  "description": "Timestamped sponsor detections for one video, consumed by the player to draw replacements and blurs. Coordinates are normalized to the video frame (0..1); quads may extend past the frame edges. Frames must be sorted by ascending t.",
+  "type": "object",
+  "required": ["version", "video_id", "fps", "width", "height", "frames"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "video_id": { "type": "string", "minLength": 1 },
+    "source": {
+      "description": "Where the detections came from.",
+      "enum": ["ground_truth", "model"]
+    },
+    "fps": { "description": "Frame rate of the source video.", "type": "number", "exclusiveMinimum": 0 },
+    "width": { "description": "Source video width in pixels.", "type": "integer", "minimum": 1 },
+    "height": { "description": "Source video height in pixels.", "type": "integer", "minimum": 1 },
+    "frames": { "type": "array", "items": { "$ref": "#/$defs/frame" } }
+  },
+  "$defs": {
+    "category": { "enum": ["gambling", "alcohol", "neutral"] },
+    "point": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "frame": {
+      "type": "object",
+      "required": ["t", "objects"],
+      "additionalProperties": false,
+      "properties": {
+        "t": { "description": "Media time in seconds.", "type": "number", "minimum": 0 },
+        "objects": { "type": "array", "items": { "$ref": "#/$defs/object" } }
+      }
+    },
+    "object": {
+      "type": "object",
+      "required": ["id", "kind", "category", "quad", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "description": "Track id, stable across frames for the same physical sponsor.", "type": "string", "minLength": 1 },
+        "kind": { "enum": ["board", "jersey"] },
+        "category": { "$ref": "#/$defs/category" },
+        "brand": { "description": "Detected brand name, used for custom per-brand blocking.", "type": "string" },
+        "quad": {
+          "description": "Corners in order top-left, top-right, bottom-right, bottom-left.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/point" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "bbox": {
+          "description": "[x, y, w, h] of the visible region, clipped to the frame.",
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cleansheet Sync Harness</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Cleansheet sync harness</h1>
+      <p id="source"></p>
+    </header>
+
+    <main>
+      <div id="stage">
+        <video id="video" controls muted playsinline loop></video>
+        <div id="overlay"></div>
+        <svg id="outlines"></svg>
+      </div>
+
+      <aside id="controls">
+        <fieldset>
+          <legend>Hide categories</legend>
+          <label><input type="checkbox" name="category" value="gambling" checked /> Gambling</label>
+          <label><input type="checkbox" name="category" value="alcohol" checked /> Alcohol</label>
+          <label><input type="checkbox" name="category" value="neutral" /> Neutral</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Treatment</legend>
+          <label><input type="radio" name="treatment" value="replace" checked /> Replace</label>
+          <label><input type="radio" name="treatment" value="blur" /> Blur</label>
+          <label><input type="radio" name="treatment" value="none" /> None (before)</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Clock</legend>
+          <label><input type="radio" name="clock" value="currentTime" checked /> currentTime + rAF (what Vega has)</label>
+          <label><input type="radio" name="clock" value="rvfc" /> requestVideoFrameCallback (exact frame)</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Calibration</legend>
+          <label>Offset <output id="offset-value">0 ms</output>
+            <input id="offset" type="range" min="-300" max="300" step="5" value="0" />
+          </label>
+          <label><input id="show-outlines" type="checkbox" /> Show sidecar outlines</label>
+        </fieldset>
+
+        <dl id="stats"></dl>
+        <p class="hint">Press <kbd>O</kbd> to toggle outlines, <kbd>Space</kbd> to play/pause, <kbd>,</kbd>/<kbd>.</kbd> to step a frame.</p>
+      </aside>
+    </main>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

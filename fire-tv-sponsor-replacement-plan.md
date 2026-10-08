@@ -1,0 +1,165 @@
+# Cleansheet: Per-Viewer Sponsor Control for Fire TV
+
+**Hackathon:** Build, Ship, Shape: Amazon Developer Hackathon
+**Primary track:** Fire TV (Vega OS)
+**Mini challenge:** AWS Builder
+**Deadline:** Oct 23, 2026 @ 12:00pm PDT (3:00pm ET)
+**Judging:** Nov 9 to 20, 2026
+
+*"Cleansheet" is the project name (formerly "Sidecar"). "Sidecar" below refers only to the timestamped metadata track.*
+
+---
+
+## 1. The Idea
+
+Sports broadcasts are saturated with gambling sponsorships: perimeter boards, jersey sponsors, and commercial breaks. Many viewers want them gone: Muslim viewers for whom gambling is haram, people in gambling addiction recovery (betting ads are a genuine relapse trigger), and parents filtering gambling and alcohol content for kids.
+
+Cleansheet is a Fire TV sports app that detects sponsor content in the video stream using computer vision and **replaces or blurs it in real time based on each viewer's chosen categories** (gambling, alcohol, custom).
+
+### Pitch framing
+
+Do not pitch it as "removing sponsors." For leagues and streamers, that sounds like lost revenue. Pitch it as **per-viewer sponsor inventory**: the same board can show a betting brand to one viewer and a family-safe or halal-friendly sponsor to another. Leagues sell each slot twice, and viewers get control. Broadcasters already swap perimeter boards by region using virtual advertising; Cleansheet moves that capability to the individual viewer.
+
+This matters for the panel, which includes an NBA product manager, the founding partner of Vega OS (Callstack), and Fire TV leadership.
+
+### Priority categories hit
+
+Sports, AI-enhanced viewing, computer vision.
+
+---
+
+## 2. Hard Constraints
+
+| Constraint | Implication |
+| --- | --- |
+| Fire TV apps are sandboxed and DRM surfaces block capture | Cannot filter other apps (ESPN, DAZN, Prime). Cleansheet processes streams in **its own player**. Frame it as what a streaming service or league could ship. |
+| Hackathon rules: no third-party trademarks or copyrighted footage without permission | Real betting logos cannot appear in the demo video, even in licensed footage. |
+| Fire TV hardware cannot run detection at 30fps | Vision runs off-device; the device only renders overlays. |
+| No hackathon AWS credits available | Run detection offline on the dev Mac (the demo streams are VOD, so sidecar tracks can be precomputed). Use AWS only for services that are always-free or cost cents: CloudFront, Lambda, DynamoDB, plus S3 for a few hundred MB. |
+| Editorial stock licenses typically prohibit altering footage | Avoid Getty/Pond5 editorial clips. |
+| SoccerNet broadcast video requires an NDA and is research-only | OK for private experiments, never in the demo. |
+| Pexels prohibits bulk API collection for ML training | Use CC0 sources for anything that goes into training. |
+
+---
+
+## 3. Footage Strategy
+
+1. Source 3 to 5 **CC0 or CC BY** clips of amateur or lower-league matches (Pixabay CC0, Wikimedia Commons). Keep license records for every clip.
+2. Invent fictional betting brands (e.g. "BetNova", "SpinStake") and fictional replacement sponsors.
+3. **Composite the fake brands** onto boards and jerseys with a script before the stream reaches the app.
+
+Benefits:
+- Zero trademark risk in the demo.
+- **Free ground-truth labels** for every frame, giving a synthetic training set and real precision/recall numbers.
+- Controlled difficulty: show occlusion, motion blur, and camera pans honestly.
+
+---
+
+## 4. Architecture
+
+```
+CC0 footage + composited fake sponsors
+            │
+            ▼
+   HLS stream (S3 / CloudFront)
+            │
+   ┌────────┴──────────────────────────┐
+   ▼                                   ▼
+Offline worker (dev Mac)         Vega app (Fire TV)
+- YOLO detection @ 5-10Hz        - KeplerVideoSurfaceView (zIndex 0)
+- tracking between detections    - React Native overlay views above
+- homography per board           - synced to HTMLMediaElement.currentTime
+- emits timestamped sidecar      - category toggles (gambling, alcohol, custom)
+  JSON ("a caption track          - short playback delay buffer
+  for ads")
+   └──────────────► sidecar track ─┘
+```
+
+### Key design decisions
+
+- **Sidecar metadata, not re-encoded video.** The cloud emits per-frame boxes, masks, and homographies with timestamps. The device draws replacements on top. Low bandwidth, low latency, no video re-encode.
+- **Vega overlay model.** Vega's W3C Media API renders video via `KeplerVideoSurfaceView` in the React Native tree, so replacements are ordinary RN views layered above it.
+- **Fallback:** Vega supports Media Source Extensions. If overlay sync is too jittery, swap in cloud-processed segments via MSE instead.
+- **Detection:** Bootstrap with an open-vocabulary detector (Grounding DINO or OWL-ViT) if needed, then fine-tune a small YOLO model on the synthetic data for speed.
+
+### Replacement difficulty ladder
+
+| Target | Method | Status |
+| --- | --- | --- |
+| Any detection | Blur / pixelate | Baseline, always on |
+| Perimeter boards, banners | Homography warp of replacement sponsor | Core feature |
+| Jersey sponsors | Blur (fabric deforms) | Core feature |
+| True inpainting | Too slow for real time | Out of scope |
+| Commentator sponsor reads | ASR on audio, mute segments | Stretch |
+| Gambling commercials in breaks | Classify and swap | Stretch |
+
+### Stack
+
+- **App:** Vega OS, React Native. Fork `vega-sports-app` for the shell, borrow player code from `vega-video-sample` (MIT-0).
+- **Dev tooling:** Amazon Devices Builder Tools MCP in Claude Code:
+  `npx -y @amazon-devices/amazon-devices-buildertools-mcp@latest init-context`
+- **Cloud (AWS Builder, no credits):** S3 + CloudFront serve the HLS stream and the sidecar JSON. Lambda + DynamoDB (always-free tiers) serve the per-viewer sponsor-inventory API: viewer category preferences and which replacement sponsor fills each slot. Inference runs offline on the dev Mac (PyTorch MPS) because the demo clips are VOD; a live version would move the same worker to a GPU instance.
+- **Test target:** Vega Virtual Device (simulator is accepted for submission and judging).
+
+---
+
+## 5. Roadmap
+
+### Week 1: Oct 8 to 14 (de-risk)
+
+- [x] ~~Request $150 AWS credits~~ (credits no longer available; see the no-credits cloud plan in section 4).
+- [x] Set up Vega SDK, Vega Virtual Device, Builder Tools MCP.
+- [ ] Fork the sports sample; get a local HLS clip playing on the simulator.
+- [ ] Source 3 to 5 CC0 match clips; log licenses.
+- [ ] Design fictional brands; build the compositing script that outputs video + per-frame labels.
+- [ ] **Prove overlay sync** on the simulator with hardcoded boxes driven by `currentTime`. This is the riskiest piece; solve it before touching the model.
+- [ ] Start the friction log on day one.
+
+### Week 2: Oct 15 to 20 (build)
+
+- [ ] Generate synthetic training set from composited frames; train small YOLO.
+- [ ] Add tracking between detections and per-board homography estimation.
+- [ ] Run inference offline on the Mac; publish HLS + sidecar track to S3/CloudFront.
+- [ ] Lambda + DynamoDB sponsor-inventory API (viewer prefs, replacement sponsor per slot).
+- [ ] Implement board replacement (homography warp) and jersey blur in the app.
+- [ ] Build category toggle UI with proper TV focus navigation.
+- [ ] Measure precision/recall against ground truth.
+
+### Final stretch: Oct 21 to 23 (ship)
+
+- [ ] Polish UI and failure handling (missed detections fall back to blur).
+- [ ] Record demo video, under 3 minutes, best material first: side-by-side before/after, toggle switching live, accuracy numbers.
+- [ ] Write README with run instructions, architecture diagram, license records for all footage.
+- [ ] Write product feedback for every tool used (Vega SDK, Builder Tools MCP, AWS services).
+- [ ] Finalize friction log (up to 10% judging bonus).
+- [ ] If repo is private, add reviewers as collaborators at submission time (invites expire after 7 days).
+- [ ] Check the AWS bill and remove anything not needed for judging; submit before 3:00pm ET Oct 23.
+
+### Stretch goals (only if ahead)
+
+- Audio sponsor-read muting via ASR.
+- Commercial-break classification and swap.
+- Alcohol category.
+
+---
+
+## 6. Submission Checklist
+
+- [ ] Text description: what it does and how it works
+- [ ] GitHub repo (public with OSS license, or private shared with reviewers: chris-trag, knmeiss, giolaq, anishamalde, mosesroth, emersonsklar + Devpost)
+- [ ] Demo video < 3 min on YouTube/Vimeo, public, English, running on Vega simulator or device
+- [ ] Product feedback on every tool/API/SDK, including AWS services used
+- [ ] Track: Fire TV; Mini challenge: AWS Builder (with its required fields)
+- [ ] Optional: feature requests and friction log
+
+---
+
+## 7. Risks
+
+| Risk | Mitigation |
+| --- | --- |
+| Overlay drifts out of sync with video | Prototype in week 1; MSE segment-swap fallback |
+| Detector struggles on real motion | Synthetic data with augmentation; blur fallback on low confidence |
+| Vega SDK friction slows progress | Lean on Builder Tools MCP; log every issue for the friction log bonus |
+| Footage licensing questioned | Use only CC0/CC BY, keep license records in the repo |
+| AWS costs (no credits) | No GPU instances; offline inference; only always-free or near-free services; billing alert at $5 |
