@@ -120,8 +120,6 @@ id = "com.amazon.network.privilege.net-info"
 [[needs.privilege]]
 id = "com.amazon.kepler.tv.privilege.data_provider"
 
-[[needs.privilege]]
-id = "com.amazon.audio.privilege.microphone.access"
 
 [[needs.module]]
 id = "/com.amazon.vega.os@IVega_1_2"

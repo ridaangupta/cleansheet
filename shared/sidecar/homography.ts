@@ -41,9 +41,16 @@ export function applyHomography(m: Mat3, [x, y]: Point): Point {
  * `transform-origin: 0 0`.
  */
 export function cssMatrix3d(w: number, h: number, quad: Quad): string {
+  // Significant digits, not fixed decimals: the projective terms are tiny.
+  return `matrix3d(${matrix4(w, h, quad).map((v) => +v.toPrecision(12)).join(',')})`;
+}
+
+/**
+ * The same warp as `cssMatrix3d`, as the 16-number column-major array React Native's
+ * `transform: [{matrix}]` takes. Needs `transformOrigin: 'left top'` on the element.
+ */
+export function matrix4(w: number, h: number, quad: Quad): number[] {
   const m = rectToQuad(w, h, quad);
   // 4x4 column-major, with the projective row mapped to the w component.
-  const cols = [m[0], m[3], 0, m[6], m[1], m[4], 0, m[7], 0, 0, 1, 0, m[2], m[5], 0, m[8]];
-  // Significant digits, not fixed decimals: the projective terms are tiny.
-  return `matrix3d(${cols.map((v) => +v.toPrecision(12)).join(',')})`;
+  return [m[0], m[3], 0, m[6], m[1], m[4], 0, m[7], 0, 0, 1, 0, m[2], m[5], 0, m[8]];
 }
