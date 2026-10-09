@@ -12,7 +12,20 @@ export interface SyncOptions {
    * at most half of this before disappearing.
    */
   maxGap?: number;
+  /**
+   * Interpolate between neighbouring sidecar frames (default true). Turn it off for a track
+   * sampled at the video frame rate (see `samplesVideoFrames`): the video shows whole frames,
+   * so interpolating makes the overlay slide while the picture holds still. Keep it on for
+   * sparse tracks (a 5-10 Hz model sidecar).
+   */
+  interpolate?: boolean;
 }
+
+/**
+ * Snapped lookups add this before searching, so a time exactly on a frame boundary finds that
+ * frame even when its `t` was rounded up (e.g. 2/30 stored as 0.066667).
+ */
+const SNAP_EPSILON = 1e-3;
 
 const DEFAULT_MAX_GAP = 0.5;
 
@@ -43,7 +56,8 @@ export function objectsAt(track: SidecarTrack, t: number, options: SyncOptions =
   if (frames.length === 0) return [];
   const maxGap = options.maxGap ?? DEFAULT_MAX_GAP;
   const hold = maxGap / 2;
-  const time = t + (options.offset ?? 0);
+  const interpolate = options.interpolate ?? true;
+  const time = t + (options.offset ?? 0) + (interpolate ? 0 : SNAP_EPSILON);
 
   const i = frameIndexAt(frames, time);
   if (i === -1) {
@@ -62,6 +76,8 @@ export function objectsAt(track: SidecarTrack, t: number, options: SyncOptions =
     return [];
   }
 
+  if (!interpolate) return a.objects;
+
   const alpha = dt > 0 ? (time - a.t) / dt : 0;
   const next = new Map(b.objects.map((o) => [o.id, o]));
   const out: SidecarObject[] = [];
@@ -76,6 +92,14 @@ export function objectsAt(track: SidecarTrack, t: number, options: SyncOptions =
   }
   if (alpha >= 0.5) out.push(...next.values());
   return out;
+}
+
+/** True when the track has a sample for (nearly) every video frame, so lookups should snap. */
+export function samplesVideoFrames(track: SidecarTrack): boolean {
+  const f = track.frames;
+  if (f.length < 2) return false;
+  const hz = (f.length - 1) / (f[f.length - 1]!.t - f[0]!.t);
+  return hz >= 0.9 * track.fps;
 }
 
 export interface FilterPrefs {

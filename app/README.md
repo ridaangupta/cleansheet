@@ -34,4 +34,4 @@ The Vega screenshot tool doesn't work on the VVD; use `scripts/vvd_screenshot.sh
 
 ## Sync test
 
-With `SYNC_TEST = true` in `src/cleansheet/config.ts`, every stream plays `media/<clip>/hls_tc` (built by `make synctest`), which has the frame number burned in at the top right. The overlay HUD at the top left shows the frame it is drawing. Screenshot during playback; HUD minus burned-in number is the sync error in frames. `SYNC_OFFSET_S` corrects the constant part (0.1 s on the VVD). Set `SYNC_TEST = false` to play the normal streams.
+With `SYNC_TEST = true` in `src/cleansheet/config.ts`, every stream plays `media/<clip>/hls_tc` (built by `make synctest`), which has the frame number burned in at the top right. The overlay HUD at the top left shows the frame it is drawing. Screenshot during playback; HUD minus burned-in number is the sync error in frames. `SYNC_OFFSET_S` corrects the constant part (0.117 s on the VVD). Set `SYNC_TEST = false` to play the normal streams.

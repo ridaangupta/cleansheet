@@ -8,17 +8,19 @@ export const SIDECAR_URL = `${MEDIA_SERVER}/media/${CLIP}/sidecar.json`;
 
 /**
  * Seconds added to the player's currentTime before looking up the sidecar track.
- * Measured on the Vega Virtual Device (SDK 0.24) with the sync test clip: currentTime
- * trails the displayed frame by a constant 3 frames at 30 fps. Re-measure on hardware.
+ * Measured on the Vega Virtual Device (SDK 0.24) with burned-in frame numbers: currentTime trails
+ * the displayed frame by 3-4 frames at 30 fps. 0.1 s left the overlay one frame behind in 4 of 8
+ * samples; 0.117 s (3.5 frames) put it on the displayed frame in 8 of 12, one off either side in
+ * the rest (2026-10-09, tachira_02, snapped lookups). Re-measure on hardware.
  */
-export const SYNC_OFFSET_S = 0.1;
+export const SYNC_OFFSET_S = 0.117;
 
 /**
  * Sync test mode: every stream plays the clip with burned-in frame numbers
  * (pipeline/burn_frames.py -> media/<clip>/hls_tc) and the overlay draws a HUD
  * with the frame it is rendering, so a screenshot shows the sync error in frames.
  */
-export const SYNC_TEST = false;
+export const SYNC_TEST = true;
 
 /** Step 3 spike: draw TreatmentSpike (matrix warp + blurRadius tests) instead of boxes. */
 export const TREATMENT_SPIKE = true;

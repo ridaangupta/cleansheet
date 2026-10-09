@@ -1,6 +1,6 @@
 # Cleansheet
 
-Per-viewer sponsor control for Fire TV. Cleansheet detects sponsor boards in a sports stream and replaces or blurs the categories each viewer chooses to hide (gambling, alcohol, or specific brands). A cloud worker publishes a timestamped **sidecar track** of sponsor positions, and the Vega app draws replacements on top of the video in sync with playback.
+Per-viewer sponsor control for Fire TV. Cleansheet detects sponsor boards in a sports stream and replaces or obscures the categories each viewer chooses to hide (gambling, alcohol, or specific brands). A cloud worker publishes a timestamped **sidecar track** of sponsor positions, and the Vega app draws replacements on top of the video in sync with playback.
 
 See `fire-tv-sponsor-replacement-plan.md` for the full plan.
 

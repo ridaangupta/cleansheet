@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterObjects, frameIndexAt, objectsAt } from './sync';
+import { filterObjects, frameIndexAt, objectsAt, samplesVideoFrames } from './sync';
 import type { Quad, SidecarObject, SidecarTrack } from './types';
 
 function quadAt(x: number): Quad {
@@ -86,8 +86,39 @@ describe('objectsAt', () => {
     expect(a.confidence).toBeCloseTo(0.7);
   });
 
+  it('snaps to the frame on screen when interpolate is false', () => {
+    const [a] = objectsAt(tr, 1.09, { interpolate: false }).filter((o) => o.id === 'a');
+    expect(a.quad[0][0]).toBe(0);
+    expect(objectsAt(tr, 1.09, { interpolate: false }).map((o) => o.id).sort()).toEqual(['a', 'gone']);
+  });
+
+  it('snaps to a frame whose stored t was rounded up', () => {
+    // 2/30 = 0.0666..., stored rounded as 0.066667: at exactly 2/30 the video shows frame 2.
+    const rounded = track([
+      { t: 0, objects: [obj('a', 0)] },
+      { t: 0.033333, objects: [obj('a', 0.1)] },
+      { t: 0.066667, objects: [obj('a', 0.2)] },
+    ]);
+    expect(objectsAt(rounded, 2 / 30, { interpolate: false })[0].quad[0][0]).toBe(0.2);
+    expect(objectsAt(rounded, 0.05, { interpolate: false })[0].quad[0][0]).toBe(0.1);
+  });
+
+  it('still holds track ends and gaps when snapping', () => {
+    expect(objectsAt(tr, 1.3, { interpolate: false })).toHaveLength(2);
+    expect(objectsAt(tr, 1.4, { interpolate: false })).toHaveLength(0);
+  });
+
   it('handles an empty track', () => {
     expect(objectsAt(track([]), 1)).toEqual([]);
+  });
+});
+
+describe('samplesVideoFrames', () => {
+  it('is true for a per-frame track and false for a 5 Hz one', () => {
+    const perFrame = track(Array.from({ length: 31 }, (_, i) => ({ t: i / 30, objects: [] })));
+    const sparse = track(Array.from({ length: 6 }, (_, i) => ({ t: i / 5, objects: [] })));
+    expect(samplesVideoFrames(perFrame)).toBe(true);
+    expect(samplesVideoFrames(sparse)).toBe(false);
   });
 });
 

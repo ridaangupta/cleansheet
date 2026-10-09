@@ -6,7 +6,7 @@
 //  3. Blur: the same image with and without blurRadius.
 // Screenshot with scripts/vvd_screenshot.sh and compare.
 
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { matrix4, type Quad, type SidecarObject } from '@Sidecar';
@@ -37,15 +37,29 @@ const Dot = ({ x, y }: { x: number; y: number }) => (
   <View style={[styles.dot, { left: x - 4, top: y - 4 }]} />
 );
 
-const Warped = ({ uri, size, quad }: { uri: string; size: [number, number]; quad: Quad }) => (
-  <Image
-    source={{ uri }}
-    style={[
-      styles.warped,
-      { width: size[0], height: size[1], transform: [{ matrix: matrix4(size[0], size[1], quad) }] },
-    ]}
-  />
-);
+type WarpedProps = {
+  uri: string;
+  size: [number, number];
+  /** Corners, normalized (sidecar quads) or in px with scale 1. */
+  quad: Quad;
+  scaleX: number;
+  scaleY: number;
+};
+
+// Memoized: with a snapped sidecar the quad array is the same object until its frame changes, so a
+// board re-renders and recomputes its matrix once per sidecar frame, not on every parent render.
+const Warped = memo(({ uri, size, quad, scaleX, scaleY }: WarpedProps) => {
+  const matrix = useMemo(
+    () => matrix4(size[0], size[1], quad.map(([x, y]) => [x * scaleX, y * scaleY]) as Quad),
+    [size, quad, scaleX, scaleY],
+  );
+  return (
+    <Image
+      source={{ uri }}
+      style={[styles.warped, { width: size[0], height: size[1], transform: [{ matrix }] }]}
+    />
+  );
+});
 
 export const TreatmentSpike = ({ objects, width, height }: Props) => {
   const [brands, setBrands] = useState<{ size: [number, number]; replacements: Brand[] } | null>(null);
@@ -64,16 +78,15 @@ export const TreatmentSpike = ({ objects, width, height }: Props) => {
     <>
       {/* 1. live warp onto sidecar boards */}
       {objects.map((o) => {
-        const px = o.quad.map(([x, y]) => [x * width, y * height]) as Quad;
         const b = brands.replacements[hashIndex(o.id, brands.replacements.length)]!;
-        return <Warped key={o.id} uri={uriFor(b)} size={brands.size} quad={px} />;
+        return <Warped key={o.id} uri={uriFor(b)} size={brands.size} quad={o.quad} scaleX={width} scaleY={height} />;
       })}
       {SHOW_DOTS &&
         objects.map((o) => o.quad.map(([x, y], k) => <Dot key={`${o.id}-${k}`} x={x * width} y={y * height} />))}
 
       {/* 2. fixed keystone test card */}
       <View style={[styles.card, { left: width - 460, top: height - 300 }]}>
-        <Warped uri={uriFor(brands.replacements[0]!)} size={brands.size} quad={TEST_QUAD} />
+        <Warped uri={uriFor(brands.replacements[0]!)} size={brands.size} quad={TEST_QUAD} scaleX={1} scaleY={1} />
         {TEST_QUAD.map(([x, y], k) => (
           <Dot key={k} x={x} y={y} />
         ))}
