@@ -1,7 +1,7 @@
 PY := .venv/bin/python
 CLIP ?= synth
 
-.PHONY: setup brands synth clip test serve harness
+.PHONY: setup brands synth clip synctest test serve harness
 
 setup:            ## create the Python venv and install JS deps
 	python3 -m venv .venv
@@ -19,6 +19,10 @@ clip:             ## composite + package an annotated clip: make clip CLIP=<name
 	$(PY) pipeline/composite.py footage/$(CLIP).mp4
 	$(PY) pipeline/sidecar.py media/$(CLIP)/sidecar.json
 	pipeline/package_hls.sh media/$(CLIP)/composited.mp4
+
+synctest:         ## copy of a clip with burned-in frame numbers, for measuring overlay sync on Vega: make synctest CLIP=<name>
+	$(PY) pipeline/burn_frames.py media/$(CLIP)/composited.mp4
+	pipeline/package_hls.sh media/$(CLIP)/frames_burned.mp4 media/$(CLIP)/hls_tc
 
 test:             ## TS unit tests, typecheck, and tracker accuracy on the synthetic clip
 	npx vitest run

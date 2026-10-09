@@ -30,13 +30,15 @@ import {
   type ShakaPlayerSettings,
 } from '@AppSrc/w3cmedia/shakaplayer/ShakaPlayer';
 import { logDebug } from '@AppUtils/logging';
+import { SYNC_TEST, SYNC_TEST_VIDEO } from '@AppSrc/cleansheet/config';
 import { getVideoPlayerScreenStyles } from './styles';
 
+// Cleansheet synthetic clip from cloud/mock_server.py; 10.0.2.2 is the host machine as seen from the Vega Virtual Device.
 const EXAMPLE_VIDEO = {
-  title: 'Dash',
+  title: 'Cleansheet synth',
   type: 'hls',
   format: 'm3u8',
-  uri: 'https://storage.googleapis.com/shaka-demo-assets/bbb-dark-truths-hls/hls.m3u8',
+  uri: 'http://10.0.2.2:8787/media/synth/hls/index.m3u8',
 } as const satisfies VideoSource;
 
 export const VideoPlayerScreen = () => {
@@ -214,7 +216,7 @@ export const VideoPlayerScreen = () => {
           PlayerImpl={ShakaPlayer}
           VideoControls={VideoControls}
           playerSettings={playerSettings}
-          videoSource={videoSource ?? EXAMPLE_VIDEO}
+          videoSource={SYNC_TEST ? SYNC_TEST_VIDEO : videoSource ?? EXAMPLE_VIDEO}
           useHeadless={false}
         />
       </FocusGuideView>

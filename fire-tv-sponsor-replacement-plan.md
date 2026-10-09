@@ -109,11 +109,13 @@ Offline worker (dev Mac)         Vega app (Fire TV)
 
 - [x] ~~Request $150 AWS credits~~ (credits no longer available; see the no-credits cloud plan in section 4).
 - [x] Set up Vega SDK, Vega Virtual Device, Builder Tools MCP.
-- [ ] Fork the sports sample; get a local HLS clip playing on the simulator.
+- [x] Fork the sports sample; get a local HLS clip playing on the simulator.
 - [ ] Source 3 to 5 CC0 match clips; log licenses.
-- [ ] Design fictional brands; build the compositing script that outputs video + per-frame labels.
-- [ ] **Prove overlay sync** on the simulator with hardcoded boxes driven by `currentTime`. This is the riskiest piece; solve it before touching the model.
-- [ ] Start the friction log on day one.
+- [x] Design fictional brands; build the compositing script that outputs video + per-frame labels.
+- [x] **Prove overlay sync** on the simulator with hardcoded boxes driven by `currentTime`. This is the riskiest piece; solve it before touching the model.
+  - Done 2026-10-08 on the Vega Virtual Device with ground-truth sidecar boxes (`app/src/cleansheet/SponsorOverlay.tsx`). Measured with burned-in frame numbers (`make synctest`): `currentTime` trails the displayed frame by a constant 3 frames (100 ms); with `SYNC_OFFSET_S = 0.1` the error is 0 to 1 frame (10 samples, one 2-frame sample right after start). The overlay loop runs at 120 to 220 fps, so the JS thread keeps up. Re-measure on real hardware if we get one.
+- [ ] Replace the sports sample's images (hero, thumbnails, profiles load from the sample's CDN). The home hero shows real Adidas logos, which breaks the no-real-brands rule for demo footage and screenshots.
+- [x] Start the friction log on day one.
 
 ### Week 2: Oct 15 to 20 (build)
 
@@ -158,7 +160,7 @@ Offline worker (dev Mac)         Vega app (Fire TV)
 
 | Risk | Mitigation |
 | --- | --- |
-| Overlay drifts out of sync with video | Prototype in week 1; MSE segment-swap fallback |
+| Overlay drifts out of sync with video | Proven on the VVD in week 1: constant 100 ms lag, corrected by a fixed offset to within 1 frame. MSE segment-swap fallback not needed so far |
 | Detector struggles on real motion | Synthetic data with augmentation; blur fallback on low confidence |
 | Vega SDK friction slows progress | Lean on Builder Tools MCP; log every issue for the friction log bonus |
 | Footage licensing questioned | Use only CC0/CC BY, keep license records in the repo |

@@ -1,0 +1,29 @@
+import type { VideoSource } from '@AppServices/videoPlayer';
+
+/** cloud/mock_server.py on the dev Mac; 10.0.2.2 is the host as seen from the Vega Virtual Device. */
+export const MEDIA_SERVER = 'http://10.0.2.2:8787';
+export const CLIP = 'synth';
+
+export const SIDECAR_URL = `${MEDIA_SERVER}/media/${CLIP}/sidecar.json`;
+
+/**
+ * Seconds added to the player's currentTime before looking up the sidecar track.
+ * Measured on the Vega Virtual Device (SDK 0.24) with the sync test clip: currentTime
+ * trails the displayed frame by a constant 3 frames at 30 fps. Re-measure on hardware.
+ */
+export const SYNC_OFFSET_S = 0.1;
+
+/**
+ * Sync test mode: every stream plays the clip with burned-in frame numbers
+ * (pipeline/burn_frames.py -> media/<clip>/hls_tc) and the overlay draws a HUD
+ * with the frame it is rendering, so a screenshot shows the sync error in frames.
+ */
+export const SYNC_TEST = true;
+
+export const SYNC_TEST_VIDEO = {
+  title: 'Cleansheet sync test',
+  type: 'hls',
+  format: 'm3u8',
+  uri: `${MEDIA_SERVER}/media/${CLIP}/hls_tc/index.m3u8`,
+  autoplay: true,
+} as const satisfies VideoSource;

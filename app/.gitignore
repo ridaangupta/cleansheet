@@ -11,3 +11,12 @@ package-lock.json
 .tmp
 npm-debug.log
 prepareRelease.sh
+# Build outputs and generated Shaka Player integration (rebuilt by `npm install`)
+build/
+dist/
+buildinfo.json
+bvm/
+generated/
+shaka-setup/shaka-player/
+src/w3cmedia/shakaplayer/dist/
+.env

@@ -36,6 +36,7 @@ module.exports = (api) => {
           '@AppModels': './src/models',
           '@AppSrc': './src',
           '@AppRoot': './',
+          '@Sidecar': '../shared/sidecar',
         },
       },
     ],

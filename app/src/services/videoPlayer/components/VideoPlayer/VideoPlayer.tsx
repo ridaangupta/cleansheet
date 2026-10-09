@@ -10,6 +10,7 @@ import {
 } from '@amazon-devices/react-native-w3cmedia';
 
 import { useThemedStyles } from '@AppTheme';
+import { SponsorOverlay } from '@AppSrc/cleansheet/SponsorOverlay';
 import { VideoPlayerType } from '@AppServices/videoPlayer/hybrid/VideoPlayerSelector';
 import { useSmartVideoPlayer } from '@AppServices/videoPlayer/hybrid/useSmartVideoPlayer';
 import { genericForwardRef } from '@AppUtils/wrappers';
@@ -79,6 +80,16 @@ const VideoPlayerInner = <
       >,
   );
 
+  // Cleansheet: media time for the sponsor overlay. getPlaybackTime() reads the video element,
+  // which doesn't exist until the player is initialized.
+  const getTime = React.useCallback(() => {
+    try {
+      return videoPlayerServiceRef.current?.getPlaybackTime();
+    } catch {
+      return undefined;
+    }
+  }, [videoPlayerServiceRef]);
+
   const onSurfaceViewCreated = React.useCallback(
     (surfaceHandle: string) => {
       if (videoPlayerServiceRef.current) {
@@ -147,6 +158,12 @@ const VideoPlayerInner = <
         style={styles.captionView}
         onCaptionViewCreated={onCaptionViewCreated}
         onCaptionViewDestroyed={onCaptionViewDestroyed}
+      />
+
+      <SponsorOverlay
+        getTime={getTime}
+        width={overrideWidth ?? SCREEN_WIDTH}
+        height={overrideHeight ?? SCREEN_HEIGHT}
       />
 
       {/*  error / loading indicator display */}
