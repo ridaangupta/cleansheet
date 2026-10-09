@@ -27,7 +27,7 @@ CC0 footage + composited fictional sponsors
 
 - The device never runs detection. It only renders overlays from the sidecar track.
 - Do not re-encode video for the main path. Fallback only if overlay sync is too jittery: swap in cloud-processed segments via Media Source Extensions.
-- Treatments: homography-warped replacement for perimeter boards and banners (proven on the VVD with `matrix4`). Vega can't blur the video from an overlay (`blurRadius` blurs only an image), so the obscuring treatment for low-confidence detections is an open problem (see the plan); a flat colour fill was rejected. A board the detector misses entirely can't be treated; `objectsAt` only holds a track over short gaps. Jersey sponsors and true inpainting are out of scope.
+- Treatments: homography-warped replacement for perimeter boards and banners (proven on the VVD with `matrix4`). Vega can't blur the video from an overlay (`blurRadius` blurs only an image), so low-confidence detections get a cloud-made blurred texture per board (`pipeline/board_textures.py`) warped like a replacement; a flat colour fill and the mosaic were rejected. A board the detector misses entirely can't be treated; `objectsAt` only holds a track over short gaps. Jersey sponsors and true inpainting are out of scope.
 - Detection: optionally bootstrap with an open-vocabulary detector (Grounding DINO / OWL-ViT), then fine-tune a small YOLO on synthetic composited data.
 
 ## Repo layout and commands
