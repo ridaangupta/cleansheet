@@ -33,9 +33,12 @@ In the harness, toggle categories and treatments, compare the `currentTime` cloc
 
 ## Real footage
 
-1. Put a CC0/CC BY clip in `footage/` and log it in `footage/LICENSES.md`.
-2. `.venv/bin/python pipeline/annotate.py footage/<clip>.mp4`: press `n` and click the 4 corners of each board on a few keyframes, then press `t` to track and `q` to save.
-3. `make clip CLIP=<clip>`, then open `http://localhost:5173/?clip=<clip>`.
+The current real clips (`tachira_01` to `tachira_04`) come from a public-domain VTV broadcast on Wikimedia Commons; `footage/tachira.sh` downloads it and cuts them. To add more:
+
+1. Find a CC0 / CC BY / public-domain broadcast, then `.venv/bin/python pipeline/find_shots.py <broadcast>` to list uncut wide-camera stretches (`media/shots/<name>/contact.jpg`).
+2. `.venv/bin/python pipeline/cut_clip.py <broadcast> <start s> 12 footage/<clip>.mp4 --mask x,y,w,h ...` to cut a clip and pixelate fixed graphics (scorebug, channel logo). Log it in `footage/LICENSES.md`.
+3. `.venv/bin/python pipeline/annotate.py footage/<clip>.mp4`: press `n` and click 4 corners (TL, TR, BR, BL). For a straight run of perimeter boards, annotate the whole row as one quad anchored on board seams, then `+`/`-` to split it into boards and `[`/`]` to extend it past the clicked part. Press `t` to track, `q` to save. The grey margin around the frame is clickable.
+4. `make clip CLIP=<clip>`, then open `http://localhost:5173/?clip=<clip>`. Check the composite for real brands showing through before using it anywhere.
 
 Known limitation: the compositor pastes over anything in front of a board (players, ball). Clips without occlusion of the boards look best until person masking is added.
 

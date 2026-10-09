@@ -30,7 +30,8 @@ def main() -> None:
     scale = 0.5
     gray = boards_io.load_gray(video, scale)
 
-    lin_all, trk_all, fallbacks = [], [], 0
+    C = boards_io.camera_motion(gray)
+    lin_all, trk_all, cam_all, cam1_all, fallbacks = [], [], [], [], 0
     for board in data["boards"]:
         truth = boards_io._parse(board["frames"])
         kfs = boards_io.keyframes(board)
@@ -40,12 +41,18 @@ def main() -> None:
         tracked, fb = boards_io.track(gray, kfs, scale)
         trk_all.append(corner_errors(tracked, truth))
         fallbacks += fb
+        cam_all.append(corner_errors(boards_io.track_camera(C, kfs, scale), truth))
+        first = min(kfs)
+        cam1_all.append(corner_errors(boards_io.track_camera(C, {first: kfs[first]}, scale), truth))
 
     lin, trk = np.concatenate(lin_all), np.concatenate(trk_all)
     print(f"corner error in px (mean / p95 / max), {len(lin)} corners")
     print(f"  linear interpolation: {lin.mean():6.2f} / {np.percentile(lin, 95):6.2f} / {lin.max():6.2f}")
     print(f"  optical-flow tracking: {trk.mean():6.2f} / {np.percentile(trk, 95):6.2f} / {trk.max():6.2f}")
     print(f"  segments that fell back to linear: {fallbacks}")
+    for name, errs in (("camera motion, all keyframes", cam_all), ("camera motion, first keyframe only", cam1_all)):
+        e = np.concatenate(errs)
+        print(f"  {name}: {e.mean():6.2f} / {np.percentile(e, 95):6.2f} / {e.max():6.2f}")
 
 
 if __name__ == "__main__":
