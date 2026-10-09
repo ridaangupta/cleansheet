@@ -2,7 +2,7 @@ import type { VideoSource } from '@AppServices/videoPlayer';
 
 /** cloud/mock_server.py on the dev Mac; 10.0.2.2 is the host as seen from the Vega Virtual Device. */
 export const MEDIA_SERVER = 'http://10.0.2.2:8787';
-export const CLIP = 'synth';
+export const CLIP = 'tachira_02';
 
 export const SIDECAR_URL = `${MEDIA_SERVER}/media/${CLIP}/sidecar.json`;
 
@@ -18,12 +18,24 @@ export const SYNC_OFFSET_S = 0.1;
  * (pipeline/burn_frames.py -> media/<clip>/hls_tc) and the overlay draws a HUD
  * with the frame it is rendering, so a screenshot shows the sync error in frames.
  */
-export const SYNC_TEST = true;
+export const SYNC_TEST = false;
+
+/** Step 3 spike: draw TreatmentSpike (matrix warp + blurRadius tests) instead of boxes. */
+export const TREATMENT_SPIKE = true;
 
 export const SYNC_TEST_VIDEO = {
   title: 'Cleansheet sync test',
   type: 'hls',
   format: 'm3u8',
   uri: `${MEDIA_SERVER}/media/${CLIP}/hls_tc/index.m3u8`,
+  autoplay: true,
+} as const satisfies VideoSource;
+
+/** The clip every stream plays while Cleansheet is in development. */
+export const CLIP_VIDEO = {
+  title: `Cleansheet ${CLIP}`,
+  type: 'hls',
+  format: 'm3u8',
+  uri: `${MEDIA_SERVER}/media/${CLIP}/hls/index.m3u8`,
   autoplay: true,
 } as const satisfies VideoSource;

@@ -7,7 +7,8 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { objectsAt, type SidecarObject, type SidecarTrack } from '@Sidecar';
 
-import { SIDECAR_URL, SYNC_OFFSET_S, SYNC_TEST } from './config';
+import { SIDECAR_URL, SYNC_OFFSET_S, SYNC_TEST, TREATMENT_SPIKE } from './config';
+import { TreatmentSpike } from './TreatmentSpike';
 
 type Props = {
   /** Current media time in seconds, or undefined while the player isn't ready. */
@@ -76,7 +77,8 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
 
   return (
     <View pointerEvents="none" style={[styles.layer, { left: rect.x, top: rect.y, width: rect.w, height: rect.h }]}>
-      {snapshot.objects.map((o) =>
+      {TREATMENT_SPIKE && <TreatmentSpike objects={snapshot.objects} width={rect.w} height={rect.h} />}
+      {!TREATMENT_SPIKE && snapshot.objects.map((o) =>
         o.bbox ? (
           <View
             key={o.id}
@@ -96,7 +98,7 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
           </View>
         ) : null,
       )}
-      {SYNC_TEST && (
+      {(SYNC_TEST || TREATMENT_SPIKE) && (
         <View style={styles.hud}>
           <Text style={styles.hudFrame}>{Number.isNaN(frame) ? 'F----' : `F${String(frame).padStart(4, '0')}`}</Text>
           <Text style={styles.hudText}>

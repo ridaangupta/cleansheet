@@ -16,7 +16,7 @@ import { ScreenContainer } from '@AppComponents';
 import { useThemedStyles } from '@AppTheme';
 import { useAudioSinkCapabilities } from '@AppServices/audioSink';
 import { FocusGuideView } from '@AppServices/focusGuide';
-import { VIDEO_EVENTS, type VideoSource } from '@AppServices/videoPlayer';
+import { VIDEO_EVENTS } from '@AppServices/videoPlayer';
 import {
   VideoPlayer,
   VideoControls,
@@ -30,16 +30,8 @@ import {
   type ShakaPlayerSettings,
 } from '@AppSrc/w3cmedia/shakaplayer/ShakaPlayer';
 import { logDebug } from '@AppUtils/logging';
-import { SYNC_TEST, SYNC_TEST_VIDEO } from '@AppSrc/cleansheet/config';
+import { CLIP_VIDEO, SYNC_TEST, SYNC_TEST_VIDEO } from '@AppSrc/cleansheet/config';
 import { getVideoPlayerScreenStyles } from './styles';
-
-// Cleansheet synthetic clip from cloud/mock_server.py; 10.0.2.2 is the host machine as seen from the Vega Virtual Device.
-const EXAMPLE_VIDEO = {
-  title: 'Cleansheet synth',
-  type: 'hls',
-  format: 'm3u8',
-  uri: 'http://10.0.2.2:8787/media/synth/hls/index.m3u8',
-} as const satisfies VideoSource;
 
 export const VideoPlayerScreen = () => {
   const styles = useThemedStyles(getVideoPlayerScreenStyles);
@@ -50,14 +42,6 @@ export const VideoPlayerScreen = () => {
 
   const addKeplerAppStateListenerCallback =
     useAddKeplerAppStateListenerCallback();
-
-  const videoSource = useMemo(
-    () =>
-      params?.source
-        ? { ...params.source, autoplay: params.source.autoplay ?? true }
-        : undefined,
-    [params?.source],
-  );
 
   const videoPlayerServiceRef =
     useRef<VideoPlayerRef<shaka.extern.Track, ShakaPlayerSettings>>(null);
@@ -216,7 +200,8 @@ export const VideoPlayerScreen = () => {
           PlayerImpl={ShakaPlayer}
           VideoControls={VideoControls}
           playerSettings={playerSettings}
-          videoSource={SYNC_TEST ? SYNC_TEST_VIDEO : videoSource ?? EXAMPLE_VIDEO}
+          // Cleansheet: every stream plays our clip (src/cleansheet/config.ts) while in development.
+          videoSource={SYNC_TEST ? SYNC_TEST_VIDEO : CLIP_VIDEO}
           useHeadless={false}
         />
       </FocusGuideView>
