@@ -8,11 +8,24 @@ Keys (focus the video window):
   k            re-key the selected board on the current frame (click 4 corners)
   x            delete the selected board's keyframe on the current frame
   tab          select the next board         DEL      delete the selected board
-  t            track all boards between keyframes (optical flow) and save
+  t            track all boards (optical flow) and save
   s            save                          q        save and quit       esc  quit without saving
 
-Tips: key a board when it first appears, when it leaves, and every 1-2 s during fast pans.
-Then press t and scrub to check the tracked quads (drawn thinner) before running composite.py.
+Rows (a whole side of perimeter boards as one quad, split into equal boards by composite.py):
+  + / -        more / fewer boards in the selected row (1 = a single board, no split)
+  [ / ]        extend the selected row by a quarter of its length to the left / right
+  0            reset the extension
+
+The grey margin around the frame is clickable, for corners just off screen.
+
+Tips for single boards: key a board when it first appears, when it leaves, and every 1-2 s
+during fast pans. Then press t and scrub to check the tracked quads (drawn thinner).
+
+Tips for rows: click a visible stretch of the row, with the left and right edges on board seams
+you can find again later (the top and bottom edges follow the boards). Set + / - so each split
+board is about 4:1 like the brand art, and [ / ] so the row covers the whole side. One keyframe
+is enough: t tracks it across the clip. If it drifts, add a keyframe with k at the frame where
+it's worst, clicking the same seams again.
 """
 
 from __future__ import annotations
@@ -28,6 +41,8 @@ from videoio import probe, read_frames
 
 WINDOW = "cleansheet annotate"
 MAX_VIEW_W = 1400
+MARGIN = 0.12  # clickable border around the frame, as a fraction of its width/height
+EXTEND_STEP = 0.25
 
 
 class Annotator:
@@ -37,7 +52,8 @@ class Annotator:
         print("loading frames...")
         self.frames = list(read_frames(video))
         w, h, fps, _ = probe(video)
-        self.scale = min(1.0, MAX_VIEW_W / w)
+        self.mx, self.my = int(w * MARGIN), int(h * MARGIN)
+        self.scale = min(1.0, MAX_VIEW_W / (w + 2 * self.mx))
         if boards_path.exists():
             self.data = boards_io.load(boards_path)
         else:
@@ -60,7 +76,7 @@ class Annotator:
     def on_mouse(self, event, x, y, *_):
         if event != cv2.EVENT_LBUTTONDOWN or self.pending is None:
             return
-        self.clicks.append((x / self.scale, y / self.scale))
+        self.clicks.append((x / self.scale - self.mx, y / self.scale - self.my))
         if len(self.clicks) < 4:
             return
         if self.pending == "new":
@@ -80,7 +96,9 @@ class Annotator:
     # -- drawing -------------------------------------------------------------
 
     def draw(self) -> np.ndarray:
-        img = self.frames[self.i].copy()
+        img = cv2.copyMakeBorder(self.frames[self.i], self.my, self.my, self.mx, self.mx,
+                                 cv2.BORDER_CONSTANT, value=(60, 60, 60))
+        offset = np.float32([self.mx, self.my])
         for k, board in enumerate(self.data["boards"]):
             kfs = board.get("keyframes", {})
             quads = boards_io.resolve(board)
@@ -89,11 +107,17 @@ class Annotator:
                 continue
             is_key = str(self.i) in kfs
             color = (0, 255, 255) if k == self.sel else (0, 200, 0)
-            cv2.polylines(img, [q.astype(np.int32)], True, color, 3 if is_key else 1, cv2.LINE_AA)
-            cv2.putText(img, board["id"] + (" [key]" if is_key else ""), tuple(q[0].astype(int) + [0, -6]),
+            split = int(board.get("split", 1))
+            if split > 1:
+                # Preview the individual boards the row will be split into, extension included.
+                for part in boards_io.row_quads(q, split, tuple(board.get("extend", (0.0, 0.0)))):
+                    cv2.polylines(img, [(part + offset).astype(np.int32)], True, (255, 0, 255), 1, cv2.LINE_AA)
+            cv2.polylines(img, [(q + offset).astype(np.int32)], True, color, 3 if is_key else 1, cv2.LINE_AA)
+            label = board["id"] + (f" row x{split}" if split > 1 else "") + (" [key]" if is_key else "")
+            cv2.putText(img, label, tuple((q[0] + offset).astype(int) + [0, -6]),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2, cv2.LINE_AA)
         for x, y in self.clicks:
-            cv2.circle(img, (int(x), int(y)), 5, (0, 0, 255), -1)
+            cv2.circle(img, (int(x + self.mx), int(y + self.my)), 5, (0, 0, 255), -1)
         if self.scale != 1.0:
             img = cv2.resize(img, None, fx=self.scale, fy=self.scale, interpolation=cv2.INTER_AREA)
         b = self.board()
@@ -135,6 +159,18 @@ class Annotator:
                 self.pending, self.clicks = "new", []
             elif ch == "k" and self.board():
                 self.pending, self.clicks = "rekey", []
+            elif ch in ("+", "=", "-") and self.board():
+                b = self.board()
+                b["split"] = max(1, int(b.get("split", 1)) + (-1 if ch == "-" else 1))
+                if b["split"] == 1:
+                    b.pop("split")
+                    b.pop("extend", None)
+            elif ch in ("[", "]") and self.board() and int(self.board().get("split", 1)) > 1:
+                ext = list(self.board().get("extend", [0.0, 0.0]))
+                ext[0 if ch == "[" else 1] += EXTEND_STEP
+                self.board()["extend"] = ext
+            elif ch == "0" and self.board():
+                self.board().pop("extend", None)
             elif ch == "x" and self.board():
                 self.board().get("keyframes", {}).pop(str(self.i), None)
                 self.board().pop("frames", None)
@@ -146,8 +182,11 @@ class Annotator:
             elif ch == "t":
                 print("tracking...")
                 report = boards_io.densify_all(self.video, self.data)
-                for board_id, fallbacks in report.items():
-                    note = f", {fallbacks} segment(s) fell back to linear" if fallbacks else ""
+                for board_id, result in report.items():
+                    if isinstance(result, str):
+                        note = f" {result}"
+                    else:
+                        note = f", {result} segment(s) fell back to linear" if result else ""
                     print(f"  {board_id}: tracked{note}")
                 self.save()
             elif ch == "s":

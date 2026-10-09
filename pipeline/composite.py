@@ -110,9 +110,11 @@ def main() -> None:
     on_air, images = load_brands()
     category = {b["name"]: b["category"] for b in on_air}
     classes = [b["name"] for b in on_air]
-    assignment = assign_brands(data["boards"], on_air, args.seed)
-    quads = {b["id"]: boards_io.resolve(b) for b in data["boards"]}
-    kinds = {b["id"]: b.get("kind", "board") for b in data["boards"]}
+    # Rows are split into their individual boards here, so everything below sees plain boards.
+    boards = boards_io.expand(data["boards"])
+    assignment = assign_brands(boards, on_air, args.seed)
+    quads = {b["id"]: b["quads"] for b in boards}
+    kinds = {b["id"]: b["kind"] for b in boards}
 
     hz = args.sidecar_hz or fps
     track = SidecarTrack(video_id=video.stem, fps=fps, width=width, height=height, source="ground_truth")

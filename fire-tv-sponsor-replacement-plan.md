@@ -110,16 +110,35 @@ Offline worker (dev Mac)         Vega app (Fire TV)
 - [x] ~~Request $150 AWS credits~~ (credits no longer available; see the no-credits cloud plan in section 4).
 - [x] Set up Vega SDK, Vega Virtual Device, Builder Tools MCP.
 - [x] Fork the sports sample; get a local HLS clip playing on the simulator.
-- [ ] Source 3 to 5 CC0 match clips; log licenses.
+- [x] Source 3 to 5 CC0 match clips; log licenses.
+  - Done 2026-10-09: four 12 s clips (`footage/tachira_01..04.mp4`) from VTV's public-domain ({{PD-VenezuelaGov}}) broadcast of Deportivo Táchira vs. Rayo Zuliano on Wikimedia Commons, logged in `footage/LICENSES.md` and rebuildable with `footage/tachira.sh`. Picked with `pipeline/find_shots.py` (uncut wide-camera stretches), cut with `pipeline/cut_clip.py` (720p30, audio dropped, scorebug and VTV logo pixelated). Pixabay was ruled out: its license hasn't been CC0 since 2019.
+  - The clips still show real sponsors on the boards (including two real betting brands) until they are annotated and composited. Don't use them uncomposited in anything shown.
 - [x] Design fictional brands; build the compositing script that outputs video + per-frame labels.
 - [x] **Prove overlay sync** on the simulator with hardcoded boxes driven by `currentTime`. This is the riskiest piece; solve it before touching the model.
   - Done 2026-10-08 on the Vega Virtual Device with ground-truth sidecar boxes (`app/src/cleansheet/SponsorOverlay.tsx`). Measured with burned-in frame numbers (`make synctest`): `currentTime` trails the displayed frame by a constant 3 frames (100 ms); with `SYNC_OFFSET_S = 0.1` the error is 0 to 1 frame (10 samples, one 2-frame sample right after start). The overlay loop runs at 120 to 220 fps, so the JS thread keeps up. Re-measure on real hardware if we get one.
 - [ ] Replace the sports sample's images (hero, thumbnails, profiles load from the sample's CDN). The home hero shows real Adidas logos, which breaks the no-real-brands rule for demo footage and screenshots.
 - [x] Start the friction log on day one.
 
+### Next up (written 2026-10-09)
+
+Ordered; each step lists who does it. "You" = steps that need a person at the Mac (interactive windows, accounts, judgment calls).
+
+1. ~~**Annotate the board rows on the four real clips**~~ Done 2026-10-09 by Claude (rows + camera-motion tracking + correction keyframes; `footage/tachira_0N.boards.json`). Needs your review of the four composites. Original instructions kept for future clips: `.venv/bin/python pipeline/annotate.py footage/tachira_0N.mp4`; one row quad per straight run of boards (top row and LED band on the far side, plus any row behind a goal line that comes into view), anchored on board seams; `+`/`-` to split, `[`/`]` to extend, `t` to track. `footage/tachira_02.boards.json` is a rough draft to start from. Then `make clip CLIP=tachira_0N` and scrub `media/tachira_0N/composited.mp4` for real brands showing through.
+2. **Make composites look broadcast-real** (Claude, ~half a day). Match the footage's softness and contrast instead of pasting crisp art, shuffle brand order per row, add thin seams between split boards. The demo's before/after shot depends on this.
+3. **Spike the app-side treatments on the VVD** (Claude, before building UI on them). Two unknowns: does Vega RN honour a `matrix` transform (for warping replacement art with `cssMatrix3d`'s math), and is there any blur/backdrop-filter on Vega? Fallbacks: per-board pre-warped replacement images, and an opaque "frosted" fill instead of a live blur.
+4. **Treatments + category filtering in the app** (Claude). Replace (warp a replacement sponsor onto the quad) for boards, blur/fill fallback for low confidence; `filterObjects` with the viewer's categories; turn `SYNC_TEST` off by default.
+5. **Category toggle UI with D-pad focus** (Claude, then you test with the remote). Settings panel over the player: gambling / alcohol toggles, treatment choice; follows the Vega focus-management guidance.
+6. **Replace the sports sample's images** (Claude). Our own fictional art for hero, thumbnails and profiles; removes the Adidas logos.
+
+Then the Week 2 build below, in this order: detector (needs the composites from 1-2) → model sidecar and precision/recall → AWS (ask before creating anything) → app reads prefs from the API.
+
+Decisions to make on the way:
+- **Jersey sponsors:** at broadcast wide-shot size they're illegible, and blurring jerseys needs player detection. Proposal: out of scope unless Week 2 finishes early.
+- **Detector output shape:** YOLO boxes can't drive a homography warp. Proposal: YOLO segmentation, then fit a 4-corner quad to each mask; fall back to blur when the fit is poor.
+
 ### Week 2: Oct 15 to 20 (build)
 
-- [ ] Generate synthetic training set from composited frames; train small YOLO.
+- [ ] Generate synthetic training set from composited frames; train small YOLO. Train on synth + tachira_01..03 composites, hold out tachira_04 for precision/recall.
 - [ ] Add tracking between detections and per-board homography estimation.
 - [ ] Run inference offline on the Mac; publish HLS + sidecar track to S3/CloudFront.
 - [ ] Lambda + DynamoDB sponsor-inventory API (viewer prefs, replacement sponsor per slot).
