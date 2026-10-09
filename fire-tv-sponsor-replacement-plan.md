@@ -14,7 +14,7 @@
 
 Sports broadcasts are saturated with gambling sponsorships: perimeter boards, jersey sponsors, and commercial breaks. Many viewers want them gone: Muslim viewers for whom gambling is haram, people in gambling addiction recovery (betting ads are a genuine relapse trigger), and parents filtering gambling and alcohol content for kids.
 
-Cleansheet is a Fire TV sports app that detects sponsor content in the video stream using computer vision and **replaces or blurs it in real time based on each viewer's chosen categories** (gambling, alcohol, custom).
+Cleansheet is a Fire TV sports app that detects sponsor content in the video stream using computer vision and **replaces or obscures it in real time based on each viewer's chosen categories** (gambling, alcohol, custom).
 
 ### Pitch framing
 
@@ -86,9 +86,9 @@ Offline worker (dev Mac)         Vega app (Fire TV)
 
 | Target | Method | Status |
 | --- | --- | --- |
-| Any detection | Blur / pixelate | Baseline, always on |
+| Low-confidence detection | Obscure (method open: per-board blurred texture or mosaic; see Next up step 3) | Open problem: Vega can't blur video from an overlay |
 | Perimeter boards, banners | Homography warp of replacement sponsor | Core feature |
-| Jersey sponsors | Blur (fabric deforms) | Core feature |
+| Jersey sponsors | None: illegible at wide-shot size, and Vega can't blur video | Proposed out of scope |
 | True inpainting | Too slow for real time | Out of scope |
 | Commentator sponsor reads | ASR on audio, mute segments | Stretch |
 | Gambling commercials in breaks | Classify and swap | Stretch |
@@ -115,7 +115,7 @@ Offline worker (dev Mac)         Vega app (Fire TV)
   - The clips still show real sponsors on the boards (including two real betting brands) until they are annotated and composited. Don't use them uncomposited in anything shown.
 - [x] Design fictional brands; build the compositing script that outputs video + per-frame labels.
 - [x] **Prove overlay sync** on the simulator with hardcoded boxes driven by `currentTime`. This is the riskiest piece; solve it before touching the model.
-  - Done 2026-10-08 on the Vega Virtual Device with ground-truth sidecar boxes (`app/src/cleansheet/SponsorOverlay.tsx`). Measured with burned-in frame numbers (`make synctest`): `currentTime` trails the displayed frame by a constant 3 frames (100 ms); with `SYNC_OFFSET_S = 0.1` the error is 0 to 1 frame (10 samples, one 2-frame sample right after start). The overlay loop runs at 120 to 220 fps, so the JS thread keeps up. Re-measure on real hardware if we get one.
+  - Done 2026-10-08 on the Vega Virtual Device with ground-truth sidecar boxes (`app/src/cleansheet/SponsorOverlay.tsx`). Measured with burned-in frame numbers (`make synctest`): `currentTime` trails the displayed frame by a constant 3 frames (100 ms); with `SYNC_OFFSET_S = 0.1` the error is 0 to 1 frame (10 samples, one 2-frame sample right after start). The overlay loop runs at 120 to 220 fps, so the JS thread keeps up. Re-measure on real hardware if we get one. Re-measured 2026-10-09 on `tachira_02` after switching the per-frame sidecar to snapped lookups and rendering only on new sidecar frames: offset raised to 0.117 s; 8 of 12 samples on the displayed frame, the rest 1 off; 29-30 renders/s.
 - [ ] Replace the sports sample's images (hero, thumbnails, profiles load from the sample's CDN). The home hero shows real Adidas logos, which breaks the no-real-brands rule for demo footage and screenshots.
 - [x] Start the friction log on day one.
 
@@ -124,7 +124,7 @@ Offline worker (dev Mac)         Vega app (Fire TV)
 Ordered; each step lists who does it. "You" = steps that need a person at the Mac (interactive windows, accounts, judgment calls).
 
 1. ~~**Annotate the board rows on the four real clips**~~ Done 2026-10-09 by Claude (rows + camera-motion tracking + correction keyframes; `footage/tachira_0N.boards.json`). Needs your review of the four composites. Original instructions kept for future clips: `.venv/bin/python pipeline/annotate.py footage/tachira_0N.mp4`; one row quad per straight run of boards (top row and LED band on the far side, plus any row behind a goal line that comes into view), anchored on board seams; `+`/`-` to split, `[`/`]` to extend, `t` to track. `footage/tachira_02.boards.json` is a rough draft to start from. Then `make clip CLIP=tachira_0N` and scrub `media/tachira_0N/composited.mp4` for real brands showing through.
-2. ~~**Make composites look broadcast-real**~~ Done 2026-10-09: `composite.py` measures the real boards on sample frames and tone-matches each fake board (brightness, contrast, saturation, clamped so brands stay legible), adds seams, blurs to the footage's measured sharpness (1.0-1.5 px vs the old fixed 0.6), and shuffles brand order per row. Synth output unchanged (`--plain` turns it off). Still missing: players in front of boards get pasted over (needs person masking). Match the footage's softness and contrast instead of pasting crisp art, shuffle brand order per row, add thin seams between split boards. The demo's before/after shot depends on this.
+2. ~~**Make composites look broadcast-real**~~ Done 2026-10-09: `composite.py` measures the real boards on sample frames and tone-matches each fake board (brightness, contrast, saturation, clamped so brands stay legible), adds seams, blurs to the footage's measured sharpness (1.0-1.5 px vs the old fixed 0.6), and shuffles brand order per row. Synth output unchanged (`--plain` turns it off). Still missing: players in front of boards get pasted over (needs person masking).
 3. ~~**Spike the app-side treatments on the VVD**~~ Done 2026-10-09 (`app/src/cleansheet/TreatmentSpike.tsx`, `matrix4()` in `shared/sidecar/homography.ts`):
    - `transform: [{matrix}]` with `transformOrigin: 'left top'` does a true perspective warp on Vega (test-card corners land on target dots, text foreshortens); replacement art sits on every live board of `tachira_02`.
    - `Image` `blurRadius` works, but only on the image itself: nothing can blur the video under an overlay (separate native surface). **Open problem:** how to obscure boards without a live blur. A flat "frost" colour fill was proposed and rejected (2026-10-09) because it doesn't read as blur. Candidates: a cloud-computed colour mosaic per board drawn with the proven warp, cloud-blurred patch images, pre-rendered blurred variants switched via MSE, always replacing instead of blurring, or a native video filter if Vega has one. Mock up the first two on the VVD and decide before step 4's obscuring work.
@@ -137,8 +137,8 @@ Ordered; each step lists who does it. "You" = steps that need a person at the Ma
 Then the Week 2 build below, in this order: detector (needs the composites from 1-2) → model sidecar and precision/recall → AWS (ask before creating anything) → app reads prefs from the API.
 
 Decisions to make on the way:
-- **Jersey sponsors:** at broadcast wide-shot size they're illegible, and blurring jerseys needs player detection. Proposal: out of scope unless Week 2 finishes early.
-- **Detector output shape:** YOLO boxes can't drive a homography warp. Proposal: YOLO segmentation, then fit a 4-corner quad to each mask; fall back to blur when the fit is poor.
+- **Jersey sponsors:** at broadcast wide-shot size they're illegible, and Vega can't blur video, so there is no treatment for them. Proposal: out of scope.
+- **Detector output shape:** YOLO boxes can't drive a homography warp. Proposal: YOLO segmentation, then fit a 4-corner quad to each mask; low-confidence boards get the obscuring treatment.
 
 ### Week 2: Oct 15 to 20 (build)
 
@@ -146,13 +146,13 @@ Decisions to make on the way:
 - [ ] Add tracking between detections and per-board homography estimation.
 - [ ] Run inference offline on the Mac; publish HLS + sidecar track to S3/CloudFront.
 - [ ] Lambda + DynamoDB sponsor-inventory API (viewer prefs, replacement sponsor per slot).
-- [ ] Implement board replacement (homography warp) and jersey blur in the app.
+- [ ] Implement board replacement (homography warp) and the obscuring treatment for low-confidence boards in the app.
 - [ ] Build category toggle UI with proper TV focus navigation.
 - [ ] Measure precision/recall against ground truth.
 
 ### Final stretch: Oct 21 to 23 (ship)
 
-- [ ] Polish UI and failure handling (missed detections fall back to blur).
+- [ ] Polish UI and failure handling: low-confidence detections get the obscuring treatment; short gaps are covered by `objectsAt`'s track hold (0.25 s); a board the detector misses entirely can't be treated.
 - [ ] Record demo video, under 3 minutes, best material first: side-by-side before/after, toggle switching live, accuracy numbers.
 - [ ] Write README with run instructions, architecture diagram, license records for all footage.
 - [ ] Write product feedback for every tool used (Vega SDK, Builder Tools MCP, AWS services).
@@ -183,8 +183,8 @@ Decisions to make on the way:
 
 | Risk | Mitigation |
 | --- | --- |
-| Overlay drifts out of sync with video | Proven on the VVD in week 1: constant 100 ms lag, corrected by a fixed offset to within 1 frame. MSE segment-swap fallback not needed so far |
-| Detector struggles on real motion | Synthetic data with augmentation; blur fallback on low confidence |
+| Overlay drifts out of sync with video | Proven on the VVD in week 1: a 3-4 frame lag, corrected by a fixed 0.117 s offset with snapped lookups (8 of 12 samples exact, rest 1 frame off). MSE segment-swap fallback not needed so far |
+| Detector struggles on real motion | Synthetic data with augmentation; obscuring treatment on low confidence |
 | Vega SDK friction slows progress | Lean on Builder Tools MCP; log every issue for the friction log bonus |
 | Footage licensing questioned | Use only CC0/CC BY, keep license records in the repo |
 | AWS costs (no credits) | No GPU instances; offline inference; only always-free or near-free services; billing alert at $5 |

@@ -3,7 +3,7 @@
 // The Vega app reuses shared/sidecar and swaps these DOM elements for RN views.
 
 import Hls from 'hls.js';
-import { cssMatrix3d, filterObjects, objectsAt, type Category, type Quad, type SidecarObject, type SidecarTrack } from '../shared/sidecar';
+import { cssMatrix3d, filterObjects, objectsAt, samplesVideoFrames, type Category, type Quad, type SidecarObject, type SidecarTrack } from '../shared/sidecar';
 
 interface BrandEntry {
   name: string;
@@ -88,7 +88,7 @@ function render(time: number): void {
   }
 
   const offset = Number(offsetInput.value) / 1000;
-  const all = objectsAt(track, time, { offset });
+  const all = objectsAt(track, time, { offset, interpolate: !samplesVideoFrames(track) });
   const categories = new Set(selected('category') as Category[]);
   const hidden = filterObjects(all, { categories });
   const treatment = selected('treatment')[0];

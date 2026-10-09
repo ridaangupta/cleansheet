@@ -5,7 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { objectsAt, type SidecarObject, type SidecarTrack } from '@Sidecar';
+import { objectsAt, samplesVideoFrames, type SidecarObject, type SidecarTrack } from '@Sidecar';
 
 import { SIDECAR_URL, SYNC_OFFSET_S, SYNC_TEST, TREATMENT_SPIKE } from './config';
 import { TreatmentSpike } from './TreatmentSpike';
@@ -29,8 +29,9 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
   const [track, setTrack] = useState<SidecarTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<Snapshot>({ time: NaN, objects: [] });
-  // Render-loop rate, to see whether the JS thread keeps up with the video.
-  const fps = useRef({ frames: 0, since: 0, value: 0 });
+  // Loop rate (animation frames/s) and update rate (React state changes/s), to see whether the
+  // JS thread keeps up with the video.
+  const rates = useRef({ loops: 0, updates: 0, since: 0, loopHz: 0, updateHz: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -48,18 +49,35 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
 
   useEffect(() => {
     if (!track) return;
+    // A per-frame ground-truth track snaps to the frame on screen; a sparse model track interpolates.
+    const snap = samplesVideoFrames(track);
     let raf = 0;
+    let last: SidecarObject[] = [];
+    let lastAt = 0;
     const loop = (now: number) => {
+      const r = rates.current;
+      r.loops += 1;
       const t = getTime();
       if (t !== undefined && !Number.isNaN(t)) {
-        setSnapshot({ time: t, objects: objectsAt(track, t, { offset: SYNC_OFFSET_S }) });
+        const objects = objectsAt(track, t, { offset: SYNC_OFFSET_S, interpolate: !snap });
+        // Re-render only when there is something new to draw: snapped lookups return the same
+        // array until the sidecar frame changes; interpolated ones are capped at ~30 updates/s.
+        const changed = snap
+          ? objects !== last && !(objects.length === 0 && last.length === 0)
+          : now - lastAt >= 33;
+        if (changed) {
+          last = objects;
+          lastAt = now;
+          r.updates += 1;
+          setSnapshot({ time: t, objects });
+        }
       }
-      const f = fps.current;
-      f.frames += 1;
-      if (now - f.since >= 1000) {
-        f.value = (f.frames * 1000) / (now - f.since);
-        f.frames = 0;
-        f.since = now;
+      if (now - r.since >= 1000) {
+        r.loopHz = (r.loops * 1000) / (now - r.since);
+        r.updateHz = (r.updates * 1000) / (now - r.since);
+        r.loops = 0;
+        r.updates = 0;
+        r.since = now;
       }
       raf = requestAnimationFrame(loop);
     };
@@ -73,7 +91,8 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
   const scale = Math.min(width / vw, height / vh);
   const rect = { x: (width - vw * scale) / 2, y: (height - vh * scale) / 2, w: vw * scale, h: vh * scale };
   // The frame the overlay is drawing, i.e. after the sync offset.
-  const frame = track ? Math.floor((snapshot.time + SYNC_OFFSET_S) * track.fps + 1e-6) : NaN;
+  // + 1 ms matches the snapped lookup in objectsAt at frame boundaries.
+  const frame = track ? Math.floor((snapshot.time + SYNC_OFFSET_S + 1e-3) * track.fps) : NaN;
 
   return (
     <View pointerEvents="none" style={[styles.layer, { left: rect.x, top: rect.y, width: rect.w, height: rect.h }]}>
@@ -103,7 +122,7 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
           <Text style={styles.hudFrame}>{Number.isNaN(frame) ? 'F----' : `F${String(frame).padStart(4, '0')}`}</Text>
           <Text style={styles.hudText}>
             {error ??
-              `t ${Number.isNaN(snapshot.time) ? '-' : snapshot.time.toFixed(3)}s  ·  ${snapshot.objects.length} obj  ·  ${fps.current.value.toFixed(0)} fps`}
+              `t ${Number.isNaN(snapshot.time) ? '-' : snapshot.time.toFixed(3)}s  ·  ${snapshot.objects.length} obj  ·  loop ${rates.current.loopHz.toFixed(0)}/s  ·  updates ${rates.current.updateHz.toFixed(0)}/s`}
           </Text>
         </View>
       )}

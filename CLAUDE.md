@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Cleansheet
 
-Fire TV (Vega OS) sports app that detects sponsor content in its own video stream with computer vision and replaces or blurs it per viewer, based on chosen categories (gambling, alcohol, custom). Built for the Amazon Developer Hackathon "Build, Ship, Shape": Fire TV track plus the AWS Builder mini challenge.
+Fire TV (Vega OS) sports app that detects sponsor content in its own video stream with computer vision and replaces or obscures it per viewer, based on chosen categories (gambling, alcohol, custom). Built for the Amazon Developer Hackathon "Build, Ship, Shape": Fire TV track plus the AWS Builder mini challenge.
 
 The full plan, roadmap, and submission checklist live in `fire-tv-sponsor-replacement-plan.md`. Treat it as the source of truth and keep its checkboxes up to date as work lands.
 
@@ -27,7 +27,7 @@ CC0 footage + composited fictional sponsors
 
 - The device never runs detection. It only renders overlays from the sidecar track.
 - Do not re-encode video for the main path. Fallback only if overlay sync is too jittery: swap in cloud-processed segments via Media Source Extensions.
-- Replacement methods: blur/pixelate any detection (baseline, also the fallback for low confidence or missed tracks); homography-warped replacement for perimeter boards and banners; blur for jersey sponsors. True inpainting is out of scope.
+- Treatments: homography-warped replacement for perimeter boards and banners (proven on the VVD with `matrix4`). Vega can't blur the video from an overlay (`blurRadius` blurs only an image), so the obscuring treatment for low-confidence detections is an open problem (see the plan); a flat colour fill was rejected. A board the detector misses entirely can't be treated; `objectsAt` only holds a track over short gaps. Jersey sponsors and true inpainting are out of scope.
 - Detection: optionally bootstrap with an open-vocabulary detector (Grounding DINO / OWL-ViT), then fine-tune a small YOLO on synthetic composited data.
 
 ## Repo layout and commands
@@ -36,7 +36,7 @@ CC0 footage + composited fictional sponsors
 - `pipeline/`: Python (run with `.venv/bin/python`; scripts import sibling modules directly). Order: brands → synth_clip, or for real footage find_shots → cut_clip → annotate → composite → package_hls.sh.
 - `cloud/mock_server.py`: serves `media/` and `assets/` on :8787 with CORS (`--host 0.0.0.0` for the Virtual Device).
 - `harness/`: Vite page that plays HLS and draws overlays; the testbed for sync before Vega. `?clip=<name>` picks the clip; it compares the `currentTime` clock (what Vega exposes) against `requestVideoFrameCallback` and has an offset slider for calibrating skew.
-- `app/`: Vega app (RN 0.83), forked from `vega-sports-app`; its own npm project. Build/run steps are in `app/README.md`. Needs `JAVA_HOME=/opt/homebrew/opt/openjdk@21` for `npm install` (Shaka build). From the Virtual Device the Mac is `10.0.2.2`, so streams point at `http://10.0.2.2:8787/...`. Vega's screenshot tool doesn't work on the VVD; use `scripts/vvd_screenshot.sh out.png` (window must be on screen). Overlay code lives in `app/src/cleansheet/`, which imports `shared/sidecar` as `@Sidecar`. Measure sync with `make synctest` plus `SYNC_TEST` in `app/src/cleansheet/config.ts` (procedure in `app/README.md`); on the VVD `currentTime` trails the picture by a constant 100 ms, corrected by `SYNC_OFFSET_S`.
+- `app/`: Vega app (RN 0.83), forked from `vega-sports-app`; its own npm project. Build/run steps are in `app/README.md`. Needs `JAVA_HOME=/opt/homebrew/opt/openjdk@21` for `npm install` (Shaka build). From the Virtual Device the Mac is `10.0.2.2`, so streams point at `http://10.0.2.2:8787/...`. Vega's screenshot tool doesn't work on the VVD; use `scripts/vvd_screenshot.sh out.png` (window must be on screen). Overlay code lives in `app/src/cleansheet/`, which imports `shared/sidecar` as `@Sidecar`. Measure sync with `make synctest` plus `SYNC_TEST` in `app/src/cleansheet/config.ts` (procedure in `app/README.md`); on the VVD `currentTime` trails the picture by 3-4 frames, corrected by `SYNC_OFFSET_S` (0.117 s). A per-frame ground-truth sidecar is looked up snapped (`interpolate: false`, chosen by `samplesVideoFrames`); interpolation is only for sparse model tracks, because interpolating a 30 Hz track slides the overlay up to ~20 px while the video frame holds.
 - `media/` and footage video files are generated or downloaded and are git-ignored.
 
 ### Pipeline data flow
@@ -88,7 +88,7 @@ HLS is packaged with B-frames off and timestamps starting at 0 so `currentTime` 
 
 - Pitch and user-facing copy frame the product as **per-viewer sponsor inventory**, not "removing sponsors".
 - Keep a running friction log in `FRICTION_LOG.md` (table: date, tool, task, what went wrong, time lost, fix) of every Vega SDK / Builder Tools MCP / AWS issue hit (it counts for up to a 10% judging bonus). Add entries as problems come up.
-- Overlay sync with `currentTime` was the riskiest piece; it's proven on the VVD (within 1 frame after a fixed 100 ms offset). Re-check with the sync test after changing the player, packaging, or overlay render path.
+- Overlay sync with `currentTime` was the riskiest piece; it's proven on the VVD (on the displayed frame in 8 of 12 samples, never more than 1 off, with a 0.117 s offset and snapped lookups). Re-check with the sync test after changing the player, packaging, or overlay render path.
 - When the compositing script runs, it should output per-frame ground-truth labels alongside the video; use them for training data and precision/recall numbers.
 
 ## Amazon Devices Builder Tools MCP
