@@ -20,10 +20,26 @@ export const SYNC_OFFSET_S = 0.117;
  * (pipeline/burn_frames.py -> media/<clip>/hls_tc) and the overlay draws a HUD
  * with the frame it is rendering, so a screenshot shows the sync error in frames.
  */
-export const SYNC_TEST = true;
+export const SYNC_TEST = false;
 
 /** Step 3 spike: draw TreatmentSpike (matrix warp + blurRadius tests) instead of boxes. */
 export const TREATMENT_SPIKE = true;
+
+/**
+ * What the spike draws on each board: 'replace' = replacement sponsors plus the warp/blur test card;
+ * 'blur' / 'mosaic' = the obscuring mock-ups, one cloud-made texture per board
+ * (pipeline/board_textures.py -> media/<clip>/textures/<mode>/<id>.png).
+ */
+export const SPIKE_MODE: 'replace' | 'blur' | 'mosaic' = 'blur';
+
+/**
+ * Log the player time of every overlay render (`[cleansheet-sync] <t>`) to the device log, for
+ * measuring where in the video frame renders land (read with `loggingctl log -v <package>`).
+ */
+export const SYNC_LOG = false;
+
+/** Draw the HUD (frame, loop and update rates) outside the sync test too. */
+export const SHOW_STATS = false;
 
 export const SYNC_TEST_VIDEO = {
   title: 'Cleansheet sync test',

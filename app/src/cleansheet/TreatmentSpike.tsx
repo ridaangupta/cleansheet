@@ -9,9 +9,9 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { matrix4, type Quad, type SidecarObject } from '@Sidecar';
+import { growQuad, matrix4, type Quad, type SidecarObject } from '@Sidecar';
 
-import { MEDIA_SERVER } from './config';
+import { CLIP, MEDIA_SERVER, SPIKE_MODE } from './config';
 
 type Brand = { name: string; category: string; file: string };
 
@@ -44,15 +44,17 @@ type WarpedProps = {
   quad: Quad;
   scaleX: number;
   scaleY: number;
+  /** Grow the warped image this many screen px past the quad on every side (hides real board edges). */
+  grow?: number;
 };
 
 // Memoized: with a snapped sidecar the quad array is the same object until its frame changes, so a
 // board re-renders and recomputes its matrix once per sidecar frame, not on every parent render.
-const Warped = memo(({ uri, size, quad, scaleX, scaleY }: WarpedProps) => {
-  const matrix = useMemo(
-    () => matrix4(size[0], size[1], quad.map(([x, y]) => [x * scaleX, y * scaleY]) as Quad),
-    [size, quad, scaleX, scaleY],
-  );
+const Warped = memo(({ uri, size, quad, scaleX, scaleY, grow = 0 }: WarpedProps) => {
+  const matrix = useMemo(() => {
+    const px = quad.map(([x, y]) => [x * scaleX, y * scaleY]) as Quad;
+    return matrix4(size[0], size[1], grow ? growQuad(px, grow) : px);
+  }, [size, quad, scaleX, scaleY, grow]);
   return (
     <Image
       source={{ uri }}
@@ -63,13 +65,45 @@ const Warped = memo(({ uri, size, quad, scaleX, scaleY }: WarpedProps) => {
 
 export const TreatmentSpike = ({ objects, width, height }: Props) => {
   const [brands, setBrands] = useState<{ size: [number, number]; replacements: Brand[] } | null>(null);
+  // Board id -> texture size, built once so Warped's memo sees the same tuple every render.
+  const [textures, setTextures] = useState<Record<string, [number, number]> | null>(null);
 
   useEffect(() => {
     fetch(`${MEDIA_SERVER}/assets/brands/brands.json`)
       .then((r) => r.json() as Promise<{ size: [number, number]; brands: Brand[] }>)
       .then((d) => setBrands({ size: d.size, replacements: d.brands.filter((b) => b.category === 'replacement') }))
       .catch(() => undefined);
+    if (SPIKE_MODE !== 'replace') {
+      fetch(`${MEDIA_SERVER}/media/${CLIP}/textures/index.json`)
+        .then((r) => r.json() as Promise<Record<string, { w: number; h: number }>>)
+        .then((idx) => setTextures(Object.fromEntries(Object.entries(idx).map(([id, t]) => [id, [t.w, t.h]]))))
+        .catch(() => undefined);
+    }
   }, []);
+
+  if (SPIKE_MODE !== 'replace') {
+    // Obscuring mock-up: each board's own cloud-made texture, warped onto its quad grown by 1.5 px.
+    if (!textures) return null;
+    return (
+      <>
+        {objects.map((o) => {
+          const t = textures[o.id];
+          if (!t) return null;
+          return (
+            <Warped
+              key={o.id}
+              uri={`${MEDIA_SERVER}/media/${CLIP}/textures/${SPIKE_MODE}/${o.id}.png`}
+              size={t}
+              quad={o.quad}
+              scaleX={width}
+              scaleY={height}
+              grow={1.5}
+            />
+          );
+        })}
+      </>
+    );
+  }
 
   if (!brands) return null;
   const uriFor = (b: Brand) => `${MEDIA_SERVER}/assets/brands/${b.file}`;

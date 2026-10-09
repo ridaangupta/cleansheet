@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyHomography, cssMatrix3d, rectToQuad, squareToQuad } from './homography';
+import { applyHomography, cssMatrix3d, growQuad, rectToQuad, squareToQuad } from './homography';
 import type { Point, Quad } from './types';
 
 const perspective: Quad = [
@@ -64,5 +64,35 @@ describe('cssMatrix3d', () => {
     const yp = values[1] * x + values[5] * y + values[13];
     const wp = values[3] * x + values[7] * y + values[15];
     expectPoint([xp / wp, yp / wp], applyHomography(m, [x, y]));
+  });
+});
+
+describe('growQuad', () => {
+  it('grows an axis-aligned rectangle by px on every side', () => {
+    const rect: Quad = [
+      [10, 20],
+      [110, 20],
+      [110, 45],
+      [10, 45],
+    ];
+    const g = growQuad(rect, 2);
+    expectPoint(g[0], [8, 18]);
+    expectPoint(g[2], [112, 47]);
+  });
+
+  it('keeps a perspective quad in its plane and contains the original', () => {
+    const g = growQuad(perspective, 1.5);
+    // Each grown corner moved outward, by a few px, not more.
+    perspective.forEach((p, i) => {
+      const d = Math.hypot(g[i][0] - p[0], g[i][1] - p[1]);
+      expect(d).toBeGreaterThan(1);
+      expect(d).toBeLessThan(6);
+    });
+    // Every original corner lies inside the grown quad (same side of all four edges).
+    const cross = (a: Point, b: Point, p: Point) => (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+    perspective.forEach((p) => {
+      const sides = g.map((a, i) => Math.sign(cross(a, g[(i + 1) % 4], p)));
+      expect(new Set(sides).size).toBe(1);
+    });
   });
 });
