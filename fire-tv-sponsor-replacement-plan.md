@@ -115,7 +115,7 @@ Offline worker (dev Mac)         Vega app (Fire TV)
   - The clips still show real sponsors on the boards (including two real betting brands) until they are annotated and composited. Don't use them uncomposited in anything shown.
 - [x] Design fictional brands; build the compositing script that outputs video + per-frame labels.
 - [x] **Prove overlay sync** on the simulator with hardcoded boxes driven by `currentTime`. This is the riskiest piece; solve it before touching the model.
-  - Done 2026-10-08 on the Vega Virtual Device with ground-truth sidecar boxes (`app/src/cleansheet/SponsorOverlay.tsx`). Measured with burned-in frame numbers (`make synctest`): `currentTime` trails the displayed frame by a constant 3 frames (100 ms); with `SYNC_OFFSET_S = 0.1` the error is 0 to 1 frame (10 samples, one 2-frame sample right after start). The overlay loop runs at 120 to 220 fps, so the JS thread keeps up. Re-measure on real hardware if we get one. Re-measured 2026-10-09 on `tachira_02` after switching the per-frame sidecar to snapped lookups and rendering only on new sidecar frames: offset raised to 0.117 s; 8 of 12 samples on the displayed frame, the rest 1 off; 29-30 renders/s.
+  - Done 2026-10-08 on the Vega Virtual Device with ground-truth sidecar boxes (`app/src/cleansheet/SponsorOverlay.tsx`). Measured with burned-in frame numbers (`make synctest`): `currentTime` trails the displayed frame by a constant 3 frames (100 ms); with `SYNC_OFFSET_S = 0.1` the error is 0 to 1 frame (10 samples, one 2-frame sample right after start). The overlay loop runs at 120 to 220 fps, so the JS thread keeps up. Re-measure on real hardware if we get one. Re-measured 2026-10-09 on `tachira_02` after switching the per-frame sidecar to snapped lookups and rendering only on new sidecar frames: offset raised to 0.117 s; 8 of 12 samples on the displayed frame, the rest 1 off; 29-30 renders/s. On-device render log: `currentTime` advances in 33 ms (one-frame) steps, so interpolating the per-frame track would sit a fixed ~0.95 frame ahead (2.3 px mean, 11.4 px max over the logged 2.2 s; ~20 px in the fastest pan); snapped lookups remove that.
 - [ ] Replace the sports sample's images (hero, thumbnails, profiles load from the sample's CDN). The home hero shows real Adidas logos, which breaks the no-real-brands rule for demo footage and screenshots.
 - [x] Start the friction log on day one.
 
@@ -128,9 +128,10 @@ Ordered; each step lists who does it. "You" = steps that need a person at the Ma
 3. ~~**Spike the app-side treatments on the VVD**~~ Done 2026-10-09 (`app/src/cleansheet/TreatmentSpike.tsx`, `matrix4()` in `shared/sidecar/homography.ts`):
    - `transform: [{matrix}]` with `transformOrigin: 'left top'` does a true perspective warp on Vega (test-card corners land on target dots, text foreshortens); replacement art sits on every live board of `tachira_02`.
    - `Image` `blurRadius` works, but only on the image itself: nothing can blur the video under an overlay (separate native surface). **Open problem:** how to obscure boards without a live blur. A flat "frost" colour fill was proposed and rejected (2026-10-09) because it doesn't read as blur. Candidates: a cloud-computed colour mosaic per board drawn with the proven warp, cloud-blurred patch images, pre-rendered blurred variants switched via MSE, always replacing instead of blurring, or a native video filter if Vega has one. Mock up the first two on the VVD and decide before step 4's obscuring work.
+   - **Obscuring mock-ups done 2026-10-09 (due Oct 10); the user picks one before step 4's obscuring work.** `pipeline/board_textures.py` straightens each board out of 5 frames of the stream, median-combines them, and writes one PNG per board id: (A) blurred, (B) a 12x3 colour mosaic upscaled with hard edges. The app warps it with `matrix4` onto the quad grown 1.5 px (`growQuad`), one view per board; `SPIKE_MODE` in `app/src/cleansheet/config.ts` switches them. Screenshots: `media/mockups/`. LED rows with changing content would need a texture per segment.
    - Perf (VVD, ~35 warped boards, state update every animation frame): 42-70 updates/s, above the video's 30 fps. With ~140 extra debug dot views it fell to 27-35, so keep the per-frame view count low; next optimizations if needed: update only when the sidecar frame changes, or drive transforms with Reanimated.
    - Original task: Two unknowns: does Vega RN honour a `matrix` transform (for warping replacement art with `cssMatrix3d`'s math), and is there any blur/backdrop-filter on Vega? Fallbacks: per-board pre-warped replacement images, and an opaque "frosted" fill instead of a live blur.
-4. **Treatments + category filtering in the app** (Claude). Replace (warp a replacement sponsor onto the quad) for boards, an obscuring treatment for low confidence once the open problem above is settled; `filterObjects` with the viewer's categories; turn `SYNC_TEST` off by default.
+4. **Treatments + category filtering in the app** (Claude). Replace (warp a replacement sponsor onto the quad) for boards, the chosen obscuring texture for low confidence; `filterObjects` with the viewer's categories; turn `TREATMENT_SPIKE` and `SYNC_TEST` off. Then **re-run the sync test** (`make synctest`), since the render path changes (CLAUDE.md requires it).
 5. **Category toggle UI with D-pad focus** (Claude, then you test with the remote). Settings panel over the player: gambling / alcohol toggles, treatment choice; follows the Vega focus-management guidance.
 6. **Replace the sports sample's images** (Claude). Our own fictional art for hero, thumbnails and profiles; removes the Adidas logos.
 
@@ -138,14 +139,22 @@ Then the Week 2 build below, in this order: detector (needs the composites from 
 
 Decisions to make on the way:
 - **Jersey sponsors:** at broadcast wide-shot size they're illegible, and Vega can't blur video, so there is no treatment for them. Proposal: out of scope.
-- **Detector output shape:** YOLO boxes can't drive a homography warp. Proposal: YOLO segmentation, then fit a 4-corner quad to each mask; low-confidence boards get the obscuring treatment.
+- **Detector output shape (the user's call):** YOLO boxes can't drive a homography warp. Two options:
+  - (a) YOLO segmentation, then fit a 4-corner quad to each mask.
+  - (b) Reviewer's suggestion: YOLO pose with 4 keypoints (`kpt_shape: [4, 3]`) predicts the corners directly, no fitting step. Labels come straight from the ground-truth quads; the visibility flag marks off-screen corners.
+  Either way, low-confidence boards get the obscuring treatment.
+- **Person masking:** players get pasted over in the composite and will be covered by live replacements in the app too (the device can't mask them). Plan: YOLO person segmentation in `composite.py` to paste players back on top; for the app, pick demo moments with few players crossing the boards and state the limitation in the README.
 
 ### Week 2: Oct 15 to 20 (build)
 
-- [ ] Generate synthetic training set from composited frames; train small YOLO. Train on synth + tachira_01..03 composites, hold out tachira_04 for precision/recall.
+- [ ] Generate the training set from composited frames; train a small YOLO. The current export is only 72 frames per clip (every 5th), 288 real frames from one match: export more frames (`--frame-stride 1` or 2), train on synth + tachira_01..04, and hold out a clip cut from a **different VTV match** so precision/recall isn't optimistic.
 - [ ] Add tracking between detections and per-board homography estimation.
 - [ ] Run inference offline on the Mac; publish HLS + sidecar track to S3/CloudFront.
-- [ ] Lambda + DynamoDB sponsor-inventory API (viewer prefs, replacement sponsor per slot).
+- [ ] **Sidecar v2, before the AWS step:** a per-board `tracks` table (kind, category, brand, obscuring-texture URL) instead of repeating those fields every frame, coordinates rounded to 4 decimals, `bbox` dropped (computable from the quad). Change `schema.json`, `types.ts` and `pipeline/sidecar.py` together. Today's sidecar is 2.6 MB of JSON per 12 s clip (~400 KB gzipped).
+- [ ] Set up the $5 AWS billing alert (from the risks table) before creating any AWS resource.
+- [ ] Turn on CloudFront compression for the sidecar JSON.
+- [ ] Lambda + DynamoDB sponsor-inventory API (viewer prefs, replacement sponsor per slot), keyed on (video_id, board id) -> replacement brand, replacing the client-side `hashIndex` in `TreatmentSpike.tsx`.
+- [ ] Person masking in `composite.py` (YOLO person segmentation, players pasted back on top).
 - [ ] Implement board replacement (homography warp) and the obscuring treatment for low-confidence boards in the app.
 - [ ] Build category toggle UI with proper TV focus navigation.
 - [ ] Measure precision/recall against ground truth.
@@ -157,7 +166,7 @@ Decisions to make on the way:
 - [ ] Write README with run instructions, architecture diagram, license records for all footage.
 - [ ] Write product feedback for every tool used (Vega SDK, Builder Tools MCP, AWS services).
 - [ ] Finalize friction log (up to 10% judging bonus).
-- [ ] If repo is private, add reviewers as collaborators at submission time (invites expire after 7 days).
+- [ ] Decide repo visibility by Oct 21: public with the OSS license, or private with the reviewers invited as collaborators at submission time (invites expire after 7 days).
 - [ ] Check the AWS bill and remove anything not needed for judging; submit before 3:00pm ET Oct 23.
 
 ### Stretch goals (only if ahead)

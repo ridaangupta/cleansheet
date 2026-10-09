@@ -7,7 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { objectsAt, samplesVideoFrames, type SidecarObject, type SidecarTrack } from '@Sidecar';
 
-import { SIDECAR_URL, SYNC_OFFSET_S, SYNC_TEST, TREATMENT_SPIKE } from './config';
+import { SHOW_STATS, SIDECAR_URL, SYNC_LOG, SYNC_OFFSET_S, SYNC_TEST, TREATMENT_SPIKE } from './config';
 import { TreatmentSpike } from './TreatmentSpike';
 
 type Props = {
@@ -69,6 +69,7 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
           last = objects;
           lastAt = now;
           r.updates += 1;
+          if (SYNC_LOG) console.log(`[cleansheet-sync] ${t.toFixed(4)}`);
           setSnapshot({ time: t, objects });
         }
       }
@@ -117,7 +118,7 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
           </View>
         ) : null,
       )}
-      {(SYNC_TEST || TREATMENT_SPIKE) && (
+      {(SYNC_TEST || SHOW_STATS) && (
         <View style={styles.hud}>
           <Text style={styles.hudFrame}>{Number.isNaN(frame) ? 'F----' : `F${String(frame).padStart(4, '0')}`}</Text>
           <Text style={styles.hudText}>

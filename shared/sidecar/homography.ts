@@ -54,3 +54,22 @@ export function matrix4(w: number, h: number, quad: Quad): number[] {
   // 4x4 column-major, with the projective row mapped to the w component.
   return [m[0], m[3], 0, m[6], m[1], m[4], 0, m[7], 0, 0, 1, 0, m[2], m[5], 0, m[8]];
 }
+
+/**
+ * `quad` grown outward by about `px` on every side, measured in the quad's own pixel units
+ * (pass a pixel quad). Done in the board's plane (through its homography), so a thin, tilted
+ * board grows evenly on all four sides and the overlay hides the real board's edges.
+ */
+export function growQuad(quad: Quad, px: number): Quad {
+  const [tl, tr, br, bl] = quad;
+  const len = (a: Point, b: Point) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const du = px / Math.max((len(tl, tr) + len(bl, br)) / 2, 1e-6);
+  const dv = px / Math.max((len(tl, bl) + len(tr, br)) / 2, 1e-6);
+  const m = squareToQuad(quad);
+  return [
+    applyHomography(m, [-du, -dv]),
+    applyHomography(m, [1 + du, -dv]),
+    applyHomography(m, [1 + du, 1 + dv]),
+    applyHomography(m, [-du, 1 + dv]),
+  ];
+}
