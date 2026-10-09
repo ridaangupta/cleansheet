@@ -15,7 +15,7 @@
         "title": "HLS",
         "type": "hls",
         "format": "HLS",
-        "uri": "https://d1v0fxmwkpxbrg.cloudfront.net/videos/hls/cosmos-laundromat/master.m3u8",
+        "uri": "http://10.0.2.2:8787/media/synth/hls/index.m3u8",
         "thumbnailUrl": "https://d1v0fxmwkpxbrg.cloudfront.net/videos/trickplays/cosmos-laundromat/"
       },
       "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/300x450/30.jpg",

@@ -23,7 +23,7 @@ export function frameIndexAt(frames: readonly SidecarFrame[], t: number): number
   let found = -1;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    if (frames[mid].t <= t) {
+    if (frames[mid]!.t <= t) {
       found = mid;
       lo = mid + 1;
     } else {
@@ -47,13 +47,13 @@ export function objectsAt(track: SidecarTrack, t: number, options: SyncOptions =
 
   const i = frameIndexAt(frames, time);
   if (i === -1) {
-    return frames[0].t - time <= hold ? frames[0].objects : [];
+    return frames[0]!.t - time <= hold ? frames[0]!.objects : [];
   }
-  const a = frames[i];
+  const a = frames[i]!;
   if (i === frames.length - 1) {
     return time - a.t <= hold ? a.objects : [];
   }
-  const b = frames[i + 1];
+  const b = frames[i + 1]!;
   const dt = b.t - a.t;
 
   if (dt > maxGap) {
@@ -100,10 +100,10 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 function lerpObject(a: SidecarObject, b: SidecarObject, t: number): SidecarObject {
-  const quad = a.quad.map((p, k) => [lerp(p[0], b.quad[k][0], t), lerp(p[1], b.quad[k][1], t)]) as Quad;
+  const quad = a.quad.map((p, k) => [lerp(p[0], b.quad[k]![0], t), lerp(p[1], b.quad[k]![1], t)]) as Quad;
   const out: SidecarObject = { ...(t < 0.5 ? a : b), quad, confidence: lerp(a.confidence, b.confidence, t) };
   if (a.bbox && b.bbox) {
-    out.bbox = a.bbox.map((v, k) => lerp(v, b.bbox![k], t)) as BBox;
+    out.bbox = a.bbox.map((v, k) => lerp(v, b.bbox![k]!, t)) as BBox;
   }
   return out;
 }
