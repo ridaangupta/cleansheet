@@ -1,14 +1,14 @@
-// Draws sidecar-track detections over the video, driven by the player's currentTime.
-// Step 2 of the plan (prove overlay sync): plain boxes from each object's bbox, no
-// warping or blur yet. Port of the currentTime path in harness/main.ts.
+// Sponsor overlay over the video, driven by the player's currentTime: looks up the sidecar track
+// (snapped for per-frame tracks), renders the viewer's treatments (SponsorTreatments), and optionally
+// debug boxes and the sync HUD. Port of the currentTime path in harness/main.ts.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { objectsAt, samplesVideoFrames, type SidecarObject, type SidecarTrack } from '@Sidecar';
 
-import { SHOW_STATS, SIDECAR_URL, SYNC_LOG, SYNC_OFFSET_S, SYNC_TEST, TREATMENT_SPIKE } from './config';
-import { TreatmentSpike } from './TreatmentSpike';
+import { SHOW_BOXES, SHOW_STATS, SIDECAR_URL, SYNC_LOG, SYNC_OFFSET_S, SYNC_TEST } from './config';
+import { SponsorTreatments } from './SponsorTreatments';
 
 type Props = {
   /** Current media time in seconds, or undefined while the player isn't ready. */
@@ -97,8 +97,8 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
 
   return (
     <View pointerEvents="none" style={[styles.layer, { left: rect.x, top: rect.y, width: rect.w, height: rect.h }]}>
-      {TREATMENT_SPIKE && <TreatmentSpike objects={snapshot.objects} width={rect.w} height={rect.h} />}
-      {!TREATMENT_SPIKE && snapshot.objects.map((o) =>
+      <SponsorTreatments objects={snapshot.objects} width={rect.w} height={rect.h} />
+      {SHOW_BOXES && snapshot.objects.map((o) =>
         o.bbox ? (
           <View
             key={o.id}

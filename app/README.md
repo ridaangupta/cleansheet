@@ -3,7 +3,7 @@
 Vega OS (React Native 0.83) app. Forked from [vega-sports-app](https://github.com/AmazonAppDev/vega-sports-app) at `bf51e7d` (MIT-0, see `LICENSE`); the upstream README is in `docs/UPSTREAM_README.md`.
 
 Changes from upstream so far:
-- `src/cleansheet/`: our code. `SponsorOverlay.tsx` draws sidecar boxes over the video from `currentTime` (mounted in `src/services/videoPlayer/components/VideoPlayer/VideoPlayer.tsx`); `config.ts` holds the media server URL, the sync offset, and the `SYNC_TEST` switch.
+- `src/cleansheet/`: our code. `SponsorOverlay.tsx` looks up the sidecar from `currentTime` (mounted in `src/services/videoPlayer/components/VideoPlayer/VideoPlayer.tsx`); `SponsorTreatments.tsx` warps a replacement sponsor (or, below `REPLACE_MIN_CONFIDENCE`, the board's blurred texture) onto every board in a hidden category; `prefs.ts` holds the viewer's hidden categories; `config.ts` holds the media server URL, the sync offset, and dev switches (`SYNC_TEST`, `FORCE_TREATMENT`, `SHOW_BOXES`, `SHOW_STATS`, `SYNC_LOG`).
 - `shared/sidecar` is imported as `@Sidecar` (alias in `babel.config.js` and `tsconfig.json`; `metro.config.js` watches `../shared` and resolves its deps from `app/node_modules`).
 - The first live stream (`src/api/liveStreams/staticData/liveStreamDetails.json`) and the player fallback (`EXAMPLE_VIDEO` in `src/screens/VideoPlayerScreen/VideoPlayerScreen.tsx`) play `http://10.0.2.2:8787/media/synth/hls/index.m3u8`. `10.0.2.2` is the host Mac as seen from the Vega Virtual Device.
 - `lefthook` removed so the sample's git hooks don't get installed into the Cleansheet repo.
