@@ -1,4 +1,5 @@
 import type { VideoSource } from '@AppServices/videoPlayer';
+import type { Category } from '@Sidecar';
 
 /** cloud/mock_server.py on the dev Mac; 10.0.2.2 is the host as seen from the Vega Virtual Device. */
 export const MEDIA_SERVER = 'http://10.0.2.2:8787';
@@ -15,8 +16,15 @@ export const TEXTURES_URL = `${MEDIA_SERVER}/media/${CLIP}/textures`;
  */
 export const REPLACE_MIN_CONFIDENCE = 0.6;
 
-/** Dev/demo override of the treatment choice: 'auto' follows confidence. */
-export const FORCE_TREATMENT: 'auto' | 'replace' | 'blur' = 'auto';
+/** Viewer defaults until the settings UI and prefs API exist: categories hidden at start. */
+export const DEFAULT_HIDDEN: Category[] = ['gambling', 'alcohol'];
+
+/**
+ * Treatment per hidden category at start: 'auto' (replace when confident, else blur), 'replace' or
+ * 'blur'. Ground-truth sidecars are always fully confident, so 'auto' only ever replaces; set a
+ * category to 'blur' to show the blurred texture (e.g. a demo with gambling replaced, alcohol blurred).
+ */
+export const DEFAULT_TREATMENTS: Partial<Record<Category, 'auto' | 'replace' | 'blur'>> = {};
 
 /**
  * Seconds added to the player's currentTime before looking up the sidecar track.
