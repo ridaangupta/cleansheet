@@ -15,10 +15,11 @@ synth: brands     ## synthetic clip -> composite -> HLS, end to end
 	$(PY) pipeline/synth_clip.py --name synth
 	$(MAKE) clip CLIP=synth
 
-clip:             ## composite + package an annotated clip: make clip CLIP=<name in footage/>
+clip:             ## composite + package + obscuring textures for an annotated clip: make clip CLIP=<name in footage/>
 	$(PY) pipeline/composite.py footage/$(CLIP).mp4
 	$(PY) pipeline/sidecar.py media/$(CLIP)/sidecar.json
 	pipeline/package_hls.sh media/$(CLIP)/composited.mp4
+	$(PY) pipeline/board_textures.py media/$(CLIP)
 
 synctest:         ## copy of a clip with burned-in frame numbers, for measuring overlay sync on Vega: make synctest CLIP=<name>
 	$(PY) pipeline/burn_frames.py media/$(CLIP)/composited.mp4
