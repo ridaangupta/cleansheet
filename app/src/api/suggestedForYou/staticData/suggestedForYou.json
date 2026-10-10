@@ -6,7 +6,7 @@
       "air_date": "2020-11-14T04:52:43Z",
       "genre": "Documentary",
       "rating": 2.7,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/1.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/1.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "HLS",
@@ -29,7 +29,7 @@
       "air_date": "11/21/2021",
       "genre": "Documentary",
       "rating": 0.2,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/2.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/2.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "MP4",
@@ -52,7 +52,7 @@
       "air_date": "8/26/2020",
       "genre": "Documentary",
       "rating": 8.3,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/3.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/3.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "DASH",
@@ -75,7 +75,7 @@
       "air_date": "8/16/2021",
       "genre": "Reality",
       "rating": 2.8,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/4.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/4.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "HLS",
@@ -98,7 +98,7 @@
       "air_date": "6/19/2020",
       "genre": "Reality",
       "rating": 1.3,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/5.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/5.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -121,7 +121,7 @@
       "air_date": "",
       "genre": "Documentary",
       "rating": 2.7,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/6.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/6.jpg",
       "sport_type": "volleyball",
       "id": "empty-air-date",
       "linked_content": {
@@ -144,7 +144,7 @@
       "air_date": "9/4/2021",
       "genre": "Documentary",
       "rating": 4.9,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/7.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/7.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -167,7 +167,7 @@
       "air_date": "4/25/2020",
       "genre": "Reality",
       "rating": 0.1,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/8.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/8.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -189,7 +189,7 @@
       "air_date": "3/25/2021",
       "genre": "Documentary",
       "rating": 7.8,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/9.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/9.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "DASH",
@@ -212,7 +212,7 @@
       "air_date": "4/21/2020",
       "genre": "Reality",
       "rating": 3.3,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/10.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/10.jpg",
       "video_source": {
         "title": "HLS",
         "type": "hls",
@@ -230,7 +230,7 @@
       "air_date": "1/29/2020",
       "genre": "Reality",
       "rating": 3.2,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/11.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/11.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -249,7 +249,7 @@
       "air_date": "4/28/2021",
       "genre": "Documentary",
       "rating": 0.1,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/12.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/12.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "DASH",
@@ -268,7 +268,7 @@
       "air_date": "10/18/2021",
       "genre": "Reality",
       "rating": 5.1,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/13.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/13.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -287,7 +287,7 @@
       "air_date": "6/7/2021",
       "genre": "Sports",
       "rating": 3.8,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/14.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/14.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -306,7 +306,7 @@
       "air_date": "3/13/2020",
       "genre": "Sports",
       "rating": 9.4,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/15.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/15.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "DASH",
@@ -325,7 +325,7 @@
       "air_date": "9/30/2021",
       "genre": "Sports",
       "rating": 8,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/16.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/16.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -344,7 +344,7 @@
       "air_date": "10/31/2020",
       "genre": "Reality",
       "rating": 1,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/17.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/17.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -363,7 +363,7 @@
       "air_date": "11/9/2021",
       "genre": "Reality",
       "rating": 1.5,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/18.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/18.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "DASH",
@@ -382,7 +382,7 @@
       "air_date": "5/17/2021",
       "genre": "Documentary",
       "rating": 4.5,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/19.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/19.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -401,7 +401,7 @@
       "air_date": "12/26/2021",
       "genre": "Sports",
       "rating": 5,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/20.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/20.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -420,7 +420,7 @@
       "air_date": "7/24/2021",
       "genre": "Documentary",
       "rating": 3.4,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/21.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/21.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "DASH",
@@ -439,7 +439,7 @@
       "air_date": "4/13/2021",
       "genre": "Documentary",
       "rating": 7.7,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/22.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/22.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -458,7 +458,7 @@
       "air_date": "2/28/2020",
       "genre": "Reality",
       "rating": 8.4,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/23.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/23.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -477,7 +477,7 @@
       "air_date": "8/18/2020",
       "genre": "Documentary",
       "rating": 5,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/24.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/24.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "DASH",
@@ -496,7 +496,7 @@
       "air_date": "2/17/2021",
       "genre": "Sports",
       "rating": 7.2,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/25.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/25.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -515,7 +515,7 @@
       "air_date": "8/14/2020",
       "genre": "Reality",
       "rating": 6.2,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/26.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/26.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -534,7 +534,7 @@
       "air_date": "6/4/2021",
       "genre": "Documentary",
       "rating": 4,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/27.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/27.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "DASH",
@@ -553,7 +553,7 @@
       "air_date": "5/12/2021",
       "genre": "Documentary",
       "rating": 5.2,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/10.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/10.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -572,7 +572,7 @@
       "air_date": "8/12/2020",
       "genre": "Documentary",
       "rating": 9.7,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/12.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/12.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "MP4",
@@ -591,7 +591,7 @@
       "air_date": "8/24/2020",
       "genre": "Sports",
       "rating": 6.4,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/14.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/14.jpg",
       "stream_duration": 734.00,
       "video_source": {
         "title": "DASH",
@@ -610,7 +610,7 @@
       "air_date": "5/24/2021",
       "genre": "Sports",
       "rating": 8.3,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/16.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/16.jpg",
       "stream_duration": 634.584,
       "video_source": {
         "title": "HLS",
@@ -629,7 +629,7 @@
       "air_date": "5/24/2021",
       "genre": "Sports",
       "rating": 8.3,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/18.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/18.jpg",
       "stream_url": "http://phoca.cz/ut/massa/volutpat/convallis/morbi/odio.xml",
       "sport_type": "snowboarding",
       "id": null,
@@ -648,7 +648,7 @@
       "air_date": "5/24/2021",
       "genre": "Sports",
       "rating": 8.3,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/20.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/900x700/20.jpg",
       "stream_url": "http://phoca.cz/ut/massa/volutpat/convallis/morbi/odio.xml",
       "sport_type": "snowboarding",
       "id": null,

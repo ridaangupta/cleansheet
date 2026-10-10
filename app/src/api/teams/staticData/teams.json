@@ -8,10 +8,10 @@
       "home_stadium": "Silver City Stadium",
       "season_start_date": "2023-07-10T04:52:43Z",
       "season_end_date": "2023-09-17T04:52:43Z",
-      "team_logo": "https://robohash.org/iureinipsam.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/1.png",
       "id": "be00b94a-e12a-48c4-9615-23c3478f1bd0",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/6.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/6.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/6.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/6.jpg",
       "favorite": true
     },
     {
@@ -22,10 +22,10 @@
       "home_stadium": "Sunset Stadium",
       "season_start_date": "1/7/2022",
       "season_end_date": "7/6/2024",
-      "team_logo": "https://robohash.org/odiotemporeaccusamus.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/2.png",
       "id": "fdd82ada-af3f-4fe8-a90b-254877082e97",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/8.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/8.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/8.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/8.jpg",
       "favorite": true
     },
     {
@@ -36,10 +36,10 @@
       "home_stadium": "Liberty Stadium",
       "season_start_date": "1/2/2022",
       "season_end_date": "9/11/2023",
-      "team_logo": "https://robohash.org/omnisadsequi.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/3.png",
       "id": "635e3d02-f128-460d-a630-628fec86ef2e",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/10.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/10.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/10.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/10.jpg",
       "favorite": false
     },
     {
@@ -50,10 +50,10 @@
       "home_stadium": "Mountainview Field",
       "season_start_date": "1/2/2022",
       "season_end_date": "6/11/2023",
-      "team_logo": "https://robohash.org/molestiaevoluptasdeserunt.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/4.png",
       "id": "f6dd98e2-d7d2-48bb-ab4d-251a0c21255a",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/12.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/12.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/12.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/12.jpg",
       "favorite": true
     },
     {
@@ -64,10 +64,10 @@
       "home_stadium": "Silver City Stadium",
       "season_start_date": "1/5/2022",
       "season_end_date": "6/12/2024",
-      "team_logo": "https://robohash.org/animiquosquas.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/5.png",
       "id": "50d39881-48af-488a-ac97-2c137105a392",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/14.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/14.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/14.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/14.jpg",
       "favorite": true
     },
     {
@@ -78,10 +78,10 @@
       "home_stadium": "Oceanfront Stadium",
       "season_start_date": "1/10/2022",
       "season_end_date": "12/27/2023",
-      "team_logo": "https://robohash.org/maximemaioreslaborum.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/6.png",
       "id": "50068e33-2f0a-4679-9a52-29bfee839818",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/14.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/14.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/14.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/14.jpg",
       "favorite": true
     },
     {
@@ -92,10 +92,10 @@
       "home_stadium": "Oakland Arena",
       "season_start_date": "1/8/2022",
       "season_end_date": "10/26/2023",
-      "team_logo": "https://robohash.org/exercitationemdoloresdistinctio.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/7.png",
       "id": "5ce1c7ce-b6eb-4ce4-b182-ee493d4bf8ab",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/16.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/16.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/16.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/16.jpg",
       "favorite": false
     },
     {
@@ -106,10 +106,10 @@
       "home_stadium": "Liberty Stadium",
       "season_start_date": "1/7/2022",
       "season_end_date": "11/19/2023",
-      "team_logo": "https://robohash.org/etreiciendisperspiciatis.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/8.png",
       "id": "6a408906-1db0-41ec-b445-472dd5be2035",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/18.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/18.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/18.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/18.jpg",
       "favorite": true
     },
     {
@@ -120,10 +120,10 @@
       "home_stadium": "Golden Gate Field",
       "season_start_date": "1/4/2022",
       "season_end_date": "7/14/2024",
-      "team_logo": "https://robohash.org/enimquiet.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/9.png",
       "id": "aee2a69c-67e3-4e0a-81d1-9b3435185786",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/20.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/20.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/20.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/20.jpg",
       "favorite": false
     },
     {
@@ -134,10 +134,10 @@
       "home_stadium": "Golden Gate Field",
       "season_start_date": "1/9/2022",
       "season_end_date": "1/7/2024",
-      "team_logo": "https://robohash.org/corruptiminimaex.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/10.png",
       "id": "633354ab-e6eb-40fa-a464-a04bc2e36b3a",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/22.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/22.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/22.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/22.jpg",
       "favorite": false
     },
     {
@@ -148,10 +148,10 @@
       "home_stadium": "Emerald Park",
       "season_start_date": "1/5/2022",
       "season_end_date": "9/26/2024",
-      "team_logo": "https://robohash.org/laboriosamdoloremdignissimos.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/11.png",
       "id": "f2d507fe-682c-476a-9a91-56923d9e5a49",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/24.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/24.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/24.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/24.jpg",
       "favorite": true
     },
     {
@@ -162,10 +162,10 @@
       "home_stadium": "Silver City Stadium",
       "season_start_date": "1/6/2022",
       "season_end_date": "10/27/2023",
-      "team_logo": "https://robohash.org/exreprehenderitet.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/12.png",
       "id": "3572b444-7d87-4b41-8e96-19a48f33aa82",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/26.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/26.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/26.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/26.jpg",
       "favorite": true
     },
     {
@@ -176,10 +176,10 @@
       "home_stadium": "Oceanfront Stadium",
       "season_start_date": "1/5/2022",
       "season_end_date": "1/6/2024",
-      "team_logo": "https://robohash.org/voluptatemetnesciunt.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/13.png",
       "id": "2c6f886f-de55-4ee8-b32d-57434df1076a",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/28.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/28.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/28.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/28.jpg",
       "favorite": true
     },
     {
@@ -190,10 +190,10 @@
       "home_stadium": "Oakland Arena",
       "season_start_date": "1/1/2022",
       "season_end_date": "2/22/2023",
-      "team_logo": "https://robohash.org/quiatotamesse.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/14.png",
       "id": "f52aebc4-3813-49c0-982d-ecf5192e2210",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/30.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/30.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/30.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/30.jpg",
       "favorite": false
     },
     {
@@ -204,10 +204,10 @@
       "home_stadium": "Oceanfront Stadium",
       "season_start_date": "1/7/2022",
       "season_end_date": "6/6/2023",
-      "team_logo": "https://robohash.org/remautemdolor.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/15.png",
       "id": "64bfdbfc-2e78-4dfc-b291-5666495e5cf6",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/32.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/32.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/32.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/32.jpg",
       "favorite": false
     },
     {
@@ -218,10 +218,10 @@
       "home_stadium": "Oceanfront Stadium",
       "season_start_date": "1/2/2022",
       "season_end_date": "3/7/2024",
-      "team_logo": "https://robohash.org/evenieterrorquaerat.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/16.png",
       "id": "164129cc-7d04-4aa3-807f-ace25f9cf56c",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/34.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/34.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/34.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/34.jpg",
       "favorite": true
     },
     {
@@ -232,10 +232,10 @@
       "home_stadium": "Emerald Park",
       "season_start_date": "1/9/2022",
       "season_end_date": "4/12/2023",
-      "team_logo": "https://robohash.org/reprehenderitrerumtempore.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/17.png",
       "id": "f5c4bed7-deb6-4144-b1d7-8c4b8732a192",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/36.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/36.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/36.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/36.jpg",
       "favorite": true
     },
     {
@@ -246,10 +246,10 @@
       "home_stadium": "Golden Gate Field",
       "season_start_date": "1/10/2022",
       "season_end_date": "4/29/2024",
-      "team_logo": "https://robohash.org/dolordoloremlibero.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/18.png",
       "id": "77b996e5-3c89-46bb-b1b2-40952e1362e7",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/38.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/38.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/38.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/38.jpg",
       "favorite": true
     },
     {
@@ -260,10 +260,10 @@
       "home_stadium": "Oceanfront Stadium",
       "season_start_date": "1/3/2022",
       "season_end_date": "10/21/2023",
-      "team_logo": "https://robohash.org/noniuredoloribus.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/19.png",
       "id": "d1b38724-b542-4b40-91ab-642b1d355365",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/40.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/40.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/40.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/40.jpg",
       "favorite": false
     },
     {
@@ -274,10 +274,10 @@
       "home_stadium": "Emerald Park",
       "season_start_date": "1/5/2022",
       "season_end_date": "4/19/2024",
-      "team_logo": "https://robohash.org/recusandaedolorumratione.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/20.png",
       "id": "1c12c40c-6f1a-4805-8d46-d2f4ad237502",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/42.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/42.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/42.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/42.jpg",
       "favorite": false
     },
     {
@@ -288,10 +288,10 @@
       "home_stadium": "Oceanfront Stadium",
       "season_start_date": "1/11/2022",
       "season_end_date": "6/3/2023",
-      "team_logo": "https://robohash.org/voluptatemquiest.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/21.png",
       "id": "30a83041-daf5-4fcb-8a8b-c28a5f193d8f",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/44.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/44.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/44.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/44.jpg",
       "favorite": true
     },
     {
@@ -302,10 +302,10 @@
       "home_stadium": "Sunset Stadium",
       "season_start_date": "1/3/2022",
       "season_end_date": "8/24/2024",
-      "team_logo": "https://robohash.org/temporamolestiasesse.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/22.png",
       "id": "b65a218c-0f3f-499c-ae4c-a3e6cbed201c",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/46.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/46.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/46.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/46.jpg",
       "favorite": true
     },
     {
@@ -316,10 +316,10 @@
       "home_stadium": "Riverside Arena",
       "season_start_date": "1/5/2022",
       "season_end_date": "4/18/2024",
-      "team_logo": "https://robohash.org/rerumaliquamaut.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/23.png",
       "id": "8b77b926-a229-4322-8b38-38a9f210eda7",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/48.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/48.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/48.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/48.jpg",
       "favorite": true
     },
     {
@@ -330,10 +330,10 @@
       "home_stadium": "Riverside Arena",
       "season_start_date": "1/7/2022",
       "season_end_date": "10/20/2023",
-      "team_logo": "https://robohash.org/facilisetomnis.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/24.png",
       "id": "a23b5086-33ed-4ad4-9ff0-a8a5f7650fcb",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/50.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/50.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/50.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/50.jpg",
       "favorite": false
     },
     {
@@ -344,10 +344,10 @@
       "home_stadium": "Oakland Arena",
       "season_start_date": "1/11/2022",
       "season_end_date": "5/25/2024",
-      "team_logo": "https://robohash.org/etvoluptasquia.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/25.png",
       "id": "6439a585-54be-4362-ac97-ca43d1654026",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/52.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/52.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/52.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/52.jpg",
       "favorite": true
     },
     {
@@ -358,10 +358,10 @@
       "home_stadium": "Riverside Arena",
       "season_start_date": "1/1/2022",
       "season_end_date": "12/29/2023",
-      "team_logo": "https://robohash.org/quoculpaid.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/26.png",
       "id": "ba06d75f-ae4e-4d1d-9ffe-7664a6f1412d",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/54.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/54.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/54.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/54.jpg",
       "favorite": false
     },
     {
@@ -372,10 +372,10 @@
       "home_stadium": "Riverside Arena",
       "season_start_date": "1/4/2022",
       "season_end_date": "9/13/2024",
-      "team_logo": "https://robohash.org/sitaspernatureius.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/27.png",
       "id": "00a31331-b356-4f94-aab5-b0e8a4312740",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/1.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/1.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/1.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/1.jpg",
       "favorite": true
     },
     {
@@ -386,10 +386,10 @@
       "home_stadium": "Emerald Park",
       "season_start_date": "1/1/2022",
       "season_end_date": "5/18/2024",
-      "team_logo": "https://robohash.org/providentrerumeaque.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/28.png",
       "id": "475a0ae4-b7bc-4a4e-83af-f370c9c6ad45",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/3.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/3.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/3.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/3.jpg",
       "favorite": false
     },
     {
@@ -400,10 +400,10 @@
       "home_stadium": "Riverside Arena",
       "season_start_date": "1/11/2022",
       "season_end_date": "1/13/2023",
-      "team_logo": "https://robohash.org/estfacereet.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/29.png",
       "id": "b49128cc-fdbb-410d-95b0-ffa48ae0c314",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/5.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/5.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/5.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/5.jpg",
       "favorite": true
     },
     {
@@ -414,10 +414,10 @@
       "home_stadium": "Liberty Stadium",
       "season_start_date": "1/10/2022",
       "season_end_date": "12/15/2023",
-      "team_logo": "https://robohash.org/occaecatibeataemaxime.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/30.png",
       "id": "0b61fb70-65e6-4730-9cf8-36016a8de80f",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/7.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/7.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/7.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/7.jpg",
       "favorite": false
     },
     {
@@ -428,10 +428,10 @@
       "home_stadium": "Liberty Stadium",
       "season_start_date": "1/10/2022",
       "season_end_date": "12/15/2023",
-      "team_logo": "https://robohash.org/occaecatibeataemaxime.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/30.png",
       "id": null,
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/9.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/9.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/9.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/9.jpg",
       "favorite": false
     },
     {
@@ -442,10 +442,10 @@
       "home_stadium": "Silver City Stadium",
       "season_start_date": "",
       "season_end_date": "",
-      "team_logo": "https://robohash.org/iureinipsam.png?size=50x50&set=set1",
+      "team_logo": "http://10.0.2.2:8787/assets/ui/players/1.png",
       "id": "empty-optional-fields",
-      "thumbnail": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/11.jpg",
-      "imageCover": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/900x700/11.jpg",
+      "thumbnail": "http://10.0.2.2:8787/assets/ui/250x250/11.jpg",
+      "imageCover": "http://10.0.2.2:8787/assets/ui/900x700/11.jpg",
       "description": "test"
     }
   ]
