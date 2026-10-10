@@ -30,7 +30,7 @@ import {
   type ShakaPlayerSettings,
 } from '@AppSrc/w3cmedia/shakaplayer/ShakaPlayer';
 import { logDebug } from '@AppUtils/logging';
-import { CLIP_VIDEO, SYNC_TEST, SYNC_TEST_VIDEO } from '@AppSrc/cleansheet/config';
+import { CLIP_VIDEO, LOOP_CLIP, SYNC_TEST, SYNC_TEST_VIDEO } from '@AppSrc/cleansheet/config';
 import { getVideoPlayerScreenStyles } from './styles';
 
 export const VideoPlayerScreen = () => {
@@ -76,6 +76,12 @@ export const VideoPlayerScreen = () => {
 
   const onEnded = useCallback<EventListener>(() => {
     logDebug('[VideoPlayerScreen] Video has ended playing');
+
+    // Cleansheet: our clips are 12 s; loop them so the overlay and settings can be used (and demoed).
+    if (LOOP_CLIP) {
+      void videoPlayerServiceRef.current?.seekTo(0).then(() => videoPlayerServiceRef.current?.play());
+      return;
+    }
 
     // Clearn progress when video ends
     clearSavedProgress();

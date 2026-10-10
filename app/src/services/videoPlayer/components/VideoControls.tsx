@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ActivityIndicator, Platform } from 'react-native';
 
-import type { HWEvent } from '@amazon-devices/react-native-kepler';
+import { FocusManager, type HWEvent } from '@amazon-devices/react-native-kepler';
 
 import { IconButton, SeekBar, Text } from '@AppComponents';
 import { useThemedStyles } from '@AppTheme';
@@ -15,6 +15,7 @@ import {
   DIRECTION_PARAMETER,
   DESTINATION_PARAMETER,
 } from '@AppServices/i18n/constants';
+import { SponsorSettingsPanel } from '@AppSrc/cleansheet/SponsorSettingsPanel';
 import type { ShakaPlayerSettings } from '@AppSrc/w3cmedia/shakaplayer/ShakaPlayer';
 import { REMOTE_EVENT_KEY_DOWN } from '../constants';
 import { VideoPlayerServiceState } from '../enums';
@@ -49,6 +50,17 @@ export const VideoControls: React.FC<
     showMediaControls,
     setShowMediaControls,
   );
+  // Cleansheet: sponsor inventory panel. On close the control bar remounts and the seek bar's
+  // hasTVPreferredFocus grabs focus, so focus is handed back to the Sponsors button just after.
+  const [sponsorPanelOpen, setSponsorPanelOpen] = useState(false);
+  const sponsorButtonRef = useRef(null);
+  const closeSponsorPanel = useCallback(() => {
+    setSponsorPanelOpen(false);
+    handleShowControls();
+    setTimeout(() => {
+      if (sponsorButtonRef.current) FocusManager.focus(sponsorButtonRef.current);
+    }, 150);
+  }, [handleShowControls]);
 
   const isInPlayableState = isPlayerInPlayableState(videoPlayerServiceState);
   const isSeeking = videoPlayerServiceState === VideoPlayerServiceState.SEEKING;
@@ -103,6 +115,11 @@ export const VideoControls: React.FC<
   // manage control visibility
   useFocusGuideEventHandler((evt: HWEvent) => {
     if (!Platform.isTV) {
+      return;
+    }
+    // Cleansheet: the sponsor panel owns the remote while open; showing the controls would remount
+    // the seek bar, whose hasTVPreferredFocus pulls focus out of the panel.
+    if (sponsorPanelOpen) {
       return;
     }
     if (evt && evt.eventKeyAction === REMOTE_EVENT_KEY_DOWN) {
@@ -160,7 +177,7 @@ export const VideoControls: React.FC<
 
   return (
     <View style={styles.bottomContainer}>
-      {showMediaControls && isInPlayableState && (
+      {showMediaControls && isInPlayableState && !sponsorPanelOpen && (
         <>
           <SeekBar
             role="progressbar"
@@ -168,7 +185,18 @@ export const VideoControls: React.FC<
             videoRef={videoPlayerServiceRef}
             handleShowControlsOnKeyEvent={handleShowControlsOnKeyEvent}
           />
-          <View style={[styles.controlItemWrapper]}>
+          <View style={[styles.controlItemWrapper, { flexDirection: 'row', gap: 16 }]}>
+            <IconButton
+              // React 19 passes ref as a prop; IconButton spreads it down to the TouchableOpacity.
+              // @ts-expect-error ref isn't in IconButton's declared props
+              ref={sponsorButtonRef}
+              testID="video-player-sponsors-btn"
+              iconName="tune-variant"
+              style={captionStyles.controlItem}
+              aria-label="Sponsor settings"
+              onPress={() => setSponsorPanelOpen(true)}>
+              <Text style={[captionStyles.text, styles.iconPrefixedText]}>Sponsors</Text>
+            </IconButton>
             <IconButton
               testID="video-player-switch-captions-btn"
               iconName="closed-caption-outline"
@@ -200,6 +228,7 @@ export const VideoControls: React.FC<
           </View>
         </>
       )}
+      {sponsorPanelOpen && <SponsorSettingsPanel onClose={closeSponsorPanel} />}
     </View>
   );
 };
