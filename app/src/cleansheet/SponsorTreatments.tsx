@@ -9,8 +9,8 @@ import { Image, StyleSheet } from 'react-native';
 
 import { filterObjects, growQuad, matrix4, type Quad, type SidecarObject } from '@Sidecar';
 
-import { BRANDS_URL, FORCE_TREATMENT, MEDIA_SERVER, REPLACE_MIN_CONFIDENCE, TEXTURES_URL } from './config';
-import { useViewerPrefs } from './prefs';
+import { BRANDS_URL, MEDIA_SERVER, REPLACE_MIN_CONFIDENCE, TEXTURES_URL } from './config';
+import { treatmentFor, useViewerPrefs } from './prefs';
 
 type Props = { objects: SidecarObject[]; width: number; height: number };
 
@@ -73,15 +73,15 @@ function useAssets(): Assets | null {
 
 export const SponsorTreatments = ({ objects, width, height }: Props) => {
   const assets = useAssets();
-  const { hidden } = useViewerPrefs();
-  const treated = useMemo(() => filterObjects(objects, { categories: hidden }), [objects, hidden]);
+  const prefs = useViewerPrefs();
+  const treated = useMemo(() => filterObjects(objects, { categories: prefs.hidden }), [objects, prefs.hidden]);
   if (!assets || assets.replacements.length === 0) return null;
 
   return (
     <>
       {treated.map((o) => {
-        const blur =
-          FORCE_TREATMENT === 'blur' || (FORCE_TREATMENT === 'auto' && o.confidence < REPLACE_MIN_CONFIDENCE);
+        const mode = treatmentFor(prefs, o.category);
+        const blur = mode === 'blur' || (mode === 'auto' && o.confidence < REPLACE_MIN_CONFIDENCE);
         if (blur) {
           const size = assets.textures[o.id];
           if (!size) return null;
