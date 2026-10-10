@@ -36,7 +36,7 @@ import { FastForwardRewindIcon } from '@AppComponents/core/SeekBar/ForwardBackwa
 import ThumbIcon from '@AppComponents/core/SeekBar/ThumbIcon';
 import { FocusGuideView } from '@AppServices/focusGuide';
 import { formatTime, getImageForVideoSecond } from '@AppServices/videoPlayer';
-import { REF_APPS_ASSETS_DOMAIN } from '@AppServices/videoPlayer';
+import { MEDIA_SERVER } from '@AppSrc/cleansheet/config';
 import { getForwardBackwardIconStyles } from './styles';
 import { getSeekBarStyles } from './styles';
 import type { SeekBarProps } from './types';
@@ -50,7 +50,8 @@ const COLORS = {
 };
 
 /** Default fallback values for seekbar display */
-const DEFAULT_THUMBNAIL_IMAGE = `${REF_APPS_ASSETS_DOMAIN}/loading.png`;
+// Cleansheet: our placeholder (assets/ui/loading.png from pipeline/ui_art.py) instead of the sample's CDN.
+const DEFAULT_THUMBNAIL_IMAGE = `${MEDIA_SERVER}/assets/ui/loading.png`;
 const DEFAULT_TIME_TEXT = '--:--';
 const TRANSPARENT_IMAGE_URL =
   'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';

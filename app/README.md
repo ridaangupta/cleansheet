@@ -7,6 +7,7 @@ Changes from upstream so far:
 - `shared/sidecar` is imported as `@Sidecar` (alias in `babel.config.js` and `tsconfig.json`; `metro.config.js` watches `../shared` and resolves its deps from `app/node_modules`).
 - The first live stream (`src/api/liveStreams/staticData/liveStreamDetails.json`) and the player fallback (`EXAMPLE_VIDEO` in `src/screens/VideoPlayerScreen/VideoPlayerScreen.tsx`) play `http://10.0.2.2:8787/media/synth/hls/index.m3u8`. `10.0.2.2` is the host Mac as seen from the Vega Virtual Device.
 - `lefthook` removed so the sample's git hooks don't get installed into the Cleansheet repo.
+- Catalogue images (static JSON, seek-bar placeholder) come from `assets/ui/` on the mock server (`pipeline/ui_art.py`), not the sample's CDN, whose images show real brands; the app icon is Cleansheet's.
 
 ## Build and run
 

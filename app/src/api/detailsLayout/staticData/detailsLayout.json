@@ -13,7 +13,7 @@
                   "id": "containera-imagetile1",
                   "description": "Explore the journey of legendary athletes.",
                   "image": {
-                    "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/30.jpg"
+                    "url": "http://10.0.2.2:8787/assets/ui/250x250/30.jpg"
                   },
                   "displayProps": {
                     "size": "custom",
@@ -30,7 +30,7 @@
                   "id": "containera-imagetile2",
                   "description": "Read about the top stars.",
                   "image": {
-                    "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/31.jpg"
+                    "url": "http://10.0.2.2:8787/assets/ui/250x250/31.jpg"
                   },
                   "displayProps": {
                     "size": "custom",
@@ -60,7 +60,7 @@
                   },
                   "id": "containera-subcontainer-imagetile1",
                   "image": {
-                    "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/32.jpg"
+                    "url": "http://10.0.2.2:8787/assets/ui/250x250/32.jpg"
                   },
                   "targetUrl": {
                     "url": "details/documentaries"
@@ -75,7 +75,7 @@
                   },
                   "id": "containera-subcontainer-imagetile2",
                   "image": {
-                    "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/33.jpg"
+                    "url": "http://10.0.2.2:8787/assets/ui/250x250/33.jpg"
                   },
                   "targetUrl": {
                     "url": "details/documentaries"
@@ -90,7 +90,7 @@
                   },
                   "id": "containera-subcontainer-imagetile3",
                   "image": {
-                    "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/35.jpg"
+                    "url": "http://10.0.2.2:8787/assets/ui/250x250/35.jpg"
                   },
                   "targetUrl": {
                     "url": "details/documentaries"
@@ -105,7 +105,7 @@
                   },
                   "id": "sectionb-tilewithimage2",
                   "image": {
-                    "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/36.jpg"
+                    "url": "http://10.0.2.2:8787/assets/ui/250x250/36.jpg"
                   },
                   "targetUrl": {
                     "url": "details/teams"
@@ -156,7 +156,7 @@
               },
               "id": "containerlivestreams-imagetile1",
               "image": {
-                "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/38.jpg",
+                "url": "http://10.0.2.2:8787/assets/ui/250x250/38.jpg",
                 "targetUrl": "team1.thumbnail"
               },
               "targetUrl": {
@@ -184,7 +184,7 @@
                 "size": "medium"
               },
               "image": {
-                "url": "https://d1v0fxmwkpxbrg.cloudfront.net/sports-app/images/250x250/39.jpg",
+                "url": "http://10.0.2.2:8787/assets/ui/250x250/39.jpg",
                 "targetUrl": "team2.thumbnail"
               },
               "targetUrl": {
