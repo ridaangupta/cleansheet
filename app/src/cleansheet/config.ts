@@ -52,6 +52,9 @@ export const SYNC_LOG = false;
 /** Draw the HUD (frame, loop and update rates) outside the sync test too. */
 export const SHOW_STATS = false;
 
+/** Loop the clip instead of leaving the player when it ends (short demo clips, testing the panel). */
+export const LOOP_CLIP = true;
+
 /** Debug: outline every sidecar object's bbox in its category colour, treated or not. */
 export const SHOW_BOXES = false;
 
