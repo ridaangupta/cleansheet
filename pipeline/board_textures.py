@@ -12,7 +12,7 @@ median-combined (drops players crossing in front), and the result is written as:
 Textures are static per board. LED boards that change content mid-clip would need one texture
 per segment (not needed for the current composites, whose LED rows carry static art).
 
-Usage: python pipeline/board_textures.py media/<clip> [--frames 5] [--height 48]
+Usage: python pipeline/board_textures.py media/<clip> [--frames 5] [--height 48] [--sidecar sidecar.model.json]
 """
 
 from __future__ import annotations
@@ -34,9 +34,12 @@ def main() -> None:
     ap.add_argument("clip_dir", type=Path)
     ap.add_argument("--frames", type=int, default=5, help="frames combined per board")
     ap.add_argument("--height", type=int, default=48, help="texture height in px; width follows the board's aspect")
+    ap.add_argument("--sidecar", default="sidecar.json",
+                    help="track in clip_dir; sidecar.model.json (detect.py) writes to textures.model/")
     args = ap.parse_args()
 
-    sidecar = json.loads((args.clip_dir / "sidecar.json").read_text())
+    sidecar = json.loads((args.clip_dir / args.sidecar).read_text())
+    out_dir = args.clip_dir / ("textures.model" if args.sidecar == "sidecar.model.json" else "textures")
     W, H = sidecar["width"], sidecar["height"]
     fps = sidecar["fps"]
 
@@ -78,7 +81,7 @@ def main() -> None:
             stacks.setdefault(bid, []).append(cv2.warpPerspective(frame, M, (w, h), flags=cv2.INTER_AREA,
                                                                   borderMode=cv2.BORDER_REPLICATE))
 
-    out_blur, out_mosaic = args.clip_dir / "textures" / "blur", args.clip_dir / "textures" / "mosaic"
+    out_blur, out_mosaic = out_dir / "blur", out_dir / "mosaic"
     out_blur.mkdir(parents=True, exist_ok=True)
     out_mosaic.mkdir(parents=True, exist_ok=True)
     index = {}
@@ -93,7 +96,7 @@ def main() -> None:
         cells = cv2.resize(flat, MOSAIC, interpolation=cv2.INTER_AREA)
         cv2.imwrite(str(out_mosaic / f"{bid}.png"), cv2.resize(cells, (w, h), interpolation=cv2.INTER_NEAREST))
         index[bid] = {"w": w, "h": h, "frames": len(imgs)}
-    (args.clip_dir / "textures" / "index.json").write_text(json.dumps(index, indent=1) + "\n")
+    (out_dir / "index.json").write_text(json.dumps(index, indent=1) + "\n")
     print(f"wrote {len(index)} board textures (blur + mosaic) to {args.clip_dir / 'textures'}")
 
 

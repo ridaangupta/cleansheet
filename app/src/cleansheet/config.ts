@@ -5,10 +5,18 @@ import type { Category } from '@Sidecar';
 export const MEDIA_SERVER = 'http://10.0.2.2:8787';
 export const CLIP = 'tachira_02';
 
-export const SIDECAR_URL = `${MEDIA_SERVER}/media/${CLIP}/sidecar.json`;
+/**
+ * Which sidecar track drives the overlay: 'ground_truth' (composite.py, exact, always confident) or
+ * 'model' (pipeline/detect.py: the detector's tracked output, with real confidences, so 'auto'
+ * blurs the unsure boards).
+ */
+export const SIDECAR_SOURCE = 'ground_truth' as 'ground_truth' | 'model';
+
+const MODEL = SIDECAR_SOURCE === 'model';
+export const SIDECAR_URL = `${MEDIA_SERVER}/media/${CLIP}/${MODEL ? 'sidecar.model.json' : 'sidecar.json'}`;
 export const BRANDS_URL = `${MEDIA_SERVER}/assets/brands/brands.json`;
 /** Per-board obscuring textures from pipeline/board_textures.py (index.json + blur/<id>.png). */
-export const TEXTURES_URL = `${MEDIA_SERVER}/media/${CLIP}/textures`;
+export const TEXTURES_URL = `${MEDIA_SERVER}/media/${CLIP}/${MODEL ? 'textures.model' : 'textures'}`;
 
 /**
  * Hidden boards at or above this confidence get a replacement sponsor; below it, the board's

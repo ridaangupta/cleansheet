@@ -4,7 +4,8 @@ Outputs in --out (default media/<clip>/):
   composited.mp4          the "broadcast" with fake sponsors (source audio kept if present)
   sidecar.json            ground-truth sidecar track (shared/sidecar/schema.json)
   dataset/images/*.jpg    every --frame-stride'th frame
-  dataset/labels/*.txt    YOLO labels for those frames: class cx cy w h (normalized)
+  dataset/labels/*.txt    YOLO pose labels for those frames: class cx cy w h, then the 4 corners
+                          (TL, TR, BR, BL) as x y v; off-screen corners are 0 0 0 (normalized)
   dataset/classes.txt     one brand name per line, class index = line number
   manifest.json           board -> brand assignment and run settings
 
@@ -82,6 +83,15 @@ def visible_bbox(quad: np.ndarray, w: int, h: int) -> tuple[float, float, float,
     if (cx1 - cx0) * (cy1 - cy0) / full < MIN_VISIBLE_FRACTION:
         return None
     return float(cx0), float(cy0), float(cx1 - cx0), float(cy1 - cy0)
+
+
+def pose_label(cls: int, bbox: tuple[float, float, float, float], quad: np.ndarray, w: int, h: int) -> str:
+    """YOLO pose line: the visible box, then each corner as x y v (v=2 on screen, 0 0 0 off it)."""
+    bx, by, bw, bh = bbox
+    parts = [str(cls), f"{(bx + bw / 2) / w:.6f}", f"{(by + bh / 2) / h:.6f}", f"{bw / w:.6f}", f"{bh / h:.6f}"]
+    for x, y in quad:
+        parts += [f"{x / w:.6f}", f"{y / h:.6f}", "2"] if 0 <= x <= w and 0 <= y <= h else ["0", "0", "0"]
+    return " ".join(parts)
 
 
 def quad_mask(shape: tuple[int, int], quad: np.ndarray, erode: int = 2) -> np.ndarray:
@@ -218,7 +228,7 @@ def main() -> None:
     ap.add_argument("--boards", type=Path, help="default: <video stem>.boards.json next to the video")
     ap.add_argument("--out", type=Path, help="default: media/<video stem>")
     ap.add_argument("--sidecar-hz", type=float, help="sidecar sample rate; default every frame")
-    ap.add_argument("--frame-stride", type=int, default=5, help="export every Nth frame to the dataset")
+    ap.add_argument("--frame-stride", type=int, default=2, help="export every Nth frame to the dataset")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--plain", action="store_true", help="no tone matching, seams, blur matching or row mixing")
     args = ap.parse_args()
@@ -278,7 +288,7 @@ def main() -> None:
                         bbox=[round(bx / width, 5), round(by / height, 5), round(bw / width, 5), round(bh / height, 5)],
                         confidence=1.0,
                     ))
-                    labels.append(f"{classes.index(brand)} {(bx + bw / 2) / width:.6f} {(by + bh / 2) / height:.6f} {bw / width:.6f} {bh / height:.6f}")
+                    labels.append(pose_label(classes.index(brand), bbox, quad, width, height))
                 writer.write(frame)
 
                 if i == 0 or int(i * hz / fps) != int((i - 1) * hz / fps):

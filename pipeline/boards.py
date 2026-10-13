@@ -32,6 +32,8 @@ annotated as a single quad and split into `split` equal boards (`expand`). The q
 to span a visible stretch of the row (anchor it on board seams you can find again);
 `extend` = [left, right] continues the row past the clicked quad, in multiples of its length,
 using the same homography, so the split boards stay perspective-correct off the clicked area.
+`split` counts boards over the extended length: 6 boards in the clicked quad with extend [0, 2]
+is split 18.
 """
 
 from __future__ import annotations

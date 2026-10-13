@@ -1,0 +1,4 @@
+# Detector training and inference (pipeline/train.py, pipeline/detect.py). Separate from
+# requirements.txt because it pulls in PyTorch.
+-r requirements.txt
+ultralytics>=8.3
