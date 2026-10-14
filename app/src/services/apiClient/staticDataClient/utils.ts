@@ -1,3 +1,4 @@
+import { LOCAL_MEDIA_SERVER, MEDIA_SERVER } from '@AppSrc/cleansheet/config';
 import { findById } from '@AppUtils/array';
 import type { ApiResponse } from '../types';
 import { buildResponse } from '../utils';
@@ -9,7 +10,7 @@ export const performRequest = async <ResponseData>({
 }: StaticDataRequest<ResponseData>): Promise<ApiResponse<ResponseData>> => {
   try {
     const timestampStart = performance.now();
-    const responseData = extras?.staticData?.[endpoint];
+    const responseData = withMediaServer(extras?.staticData?.[endpoint]);
     const timestampEnd = performance.now();
     const duration = timestampEnd - timestampStart;
 
@@ -46,3 +47,14 @@ const parseResponseData = <ResponseData>(
 
   return responseData;
 };
+
+/**
+ * Cleansheet: the static catalogue JSON points its images at the dev Mac's mock server
+ * (pipeline/ui_art.py); serve them from the configured media server (CloudFront) instead.
+ */
+const withMediaServer = <T>(data: T): T =>
+  data === undefined || MEDIA_SERVER === LOCAL_MEDIA_SERVER
+    ? data
+    : (JSON.parse(
+        JSON.stringify(data).split(LOCAL_MEDIA_SERVER).join(MEDIA_SERVER),
+      ) as T);

@@ -3,7 +3,8 @@
 Reads media/<clip>/sidecar.json and sidecar.model.json (ground-truth and model track ids don't
 collide, so both live under video#<video id>), and assigns the fictional replacement sponsors
 from assets/brands/brands.json round-robin in left-to-right order of each board's first
-appearance, so neighbouring boards differ. Writes with the AWS CLI (no boto3 dependency).
+appearance, skipping sponsors a board that touches it on screen already has (with 4 sponsors a
+board touching 4 others can still repeat one). Writes with the AWS CLI (no boto3 dependency).
 
 Usage: python cloud/seed_inventory.py [clip ...] [--dry-run]
 """
@@ -25,6 +26,21 @@ HIDEABLE = ("gambling", "alcohol")
 CLIPS = ("synth", "tachira_01", "tachira_02", "tachira_03", "tachira_04", "metro_ucv_01")
 
 
+def neighbours(track: dict) -> dict[str, set[str]]:
+    """Boards that touch on screen at some frame: one's right edge meets the other's left edge."""
+    w, h = track["width"], track["height"]
+    near: dict[str, set[str]] = {}
+    for f in track["frames"]:
+        objs = [(o["id"], [(x * w, y * h) for x, y in o["quad"]]) for o in f["objects"]]
+        for a, qa in objs:
+            ha = abs(qa[3][1] - qa[0][1]) + abs(qa[2][1] - qa[1][1])
+            for b, qb in objs:
+                if a != b and (abs(qa[1][0] - qb[0][0]) + abs(qa[1][1] - qb[0][1])) < 0.6 * ha:
+                    near.setdefault(a, set()).add(b)
+                    near.setdefault(b, set()).add(a)
+    return near
+
+
 def slots(clip: str, sponsors: list[str]) -> tuple[str, dict[str, str]]:
     video_id, assigned = clip, {}
     for name in ("sidecar.json", "sidecar.model.json"):
@@ -38,9 +54,13 @@ def slots(clip: str, sponsors: list[str]) -> tuple[str, dict[str, str]]:
             for o in f["objects"]:
                 if o["category"] in HIDEABLE and o["id"] not in first_x:
                     first_x[o["id"]] = sum(x for x, _ in o["quad"]) / 4
-        # Round-robin per sidecar: interleaving both tracks' ids would break the rotation.
+        # Rotate through the sponsors left to right, skipping any a touching board already has
+        # (rows overlap in x, so plain rotation can put the same sponsor side by side).
+        near = neighbours(track)
         for k, bid in enumerate(sorted(first_x, key=first_x.get)):
-            assigned[bid] = sponsors[k % len(sponsors)]
+            taken = {assigned[n] for n in near.get(bid, ()) if n in assigned}
+            options = [s for s in sponsors[k % len(sponsors):] + sponsors[:k % len(sponsors)] if s not in taken]
+            assigned[bid] = (options or sponsors)[0]
     return video_id, assigned
 
 

@@ -1,8 +1,24 @@
 import type { VideoSource } from '@AppServices/videoPlayer';
 import type { Category } from '@Sidecar';
 
-/** cloud/mock_server.py on the dev Mac; 10.0.2.2 is the host as seen from the Vega Virtual Device. */
-export const MEDIA_SERVER = 'http://10.0.2.2:8787';
+/**
+ * Where streams, sidecars, textures and art come from: 'cloud' (CloudFront, cloud/template.yaml,
+ * filled by cloud/publish_media.sh) or 'local' (cloud/mock_server.py on the dev Mac, for files not
+ * published yet).
+ */
+export const MEDIA_SOURCE = 'cloud' as 'cloud' | 'local';
+/** cloud/mock_server.py; 10.0.2.2 is the dev Mac as seen from the Vega Virtual Device. */
+export const LOCAL_MEDIA_SERVER = 'http://10.0.2.2:8787';
+export const CLOUD_MEDIA_SERVER = 'https://d3arzcz83y450c.cloudfront.net';
+export const MEDIA_SERVER =
+  MEDIA_SOURCE === 'cloud' ? CLOUD_MEDIA_SERVER : LOCAL_MEDIA_SERVER;
+
+/**
+ * Sponsor-inventory API (Lambda function URL, cloud/inventory/handler.py): viewer prefs per profile
+ * and the replacement sponsor for each board slot. No sign-in: anyone with the URL can change prefs.
+ */
+export const INVENTORY_API =
+  'https://w6ov4sbjyvia6nnypwlvos7rh40ogmaz.lambda-url.us-east-2.on.aws';
 export const CLIP = 'tachira_02';
 
 /**
@@ -32,7 +48,9 @@ export const DEFAULT_HIDDEN: Category[] = ['gambling', 'alcohol'];
  * 'blur'. Ground-truth sidecars are always fully confident, so 'auto' only ever replaces; set a
  * category to 'blur' to show the blurred texture (e.g. a demo with gambling replaced, alcohol blurred).
  */
-export const DEFAULT_TREATMENTS: Partial<Record<Category, 'auto' | 'replace' | 'blur'>> = {};
+export const DEFAULT_TREATMENTS: Partial<
+  Record<Category, 'auto' | 'replace' | 'blur'>
+> = {};
 
 /**
  * Seconds added to the player's currentTime before looking up the sidecar track.
@@ -49,7 +67,6 @@ export const SYNC_OFFSET_S = 0.117;
  * with the frame it is rendering, so a screenshot shows the sync error in frames.
  */
 export const SYNC_TEST = false;
-
 
 /**
  * Log the player time of every overlay render (`[cleansheet-sync] <t>`) to the device log, for
@@ -70,7 +87,8 @@ export const SYNC_TEST_VIDEO = {
   title: 'Cleansheet sync test',
   type: 'hls',
   format: 'm3u8',
-  uri: `${MEDIA_SERVER}/media/${CLIP}/hls_tc/index.m3u8`,
+  // The burned-in test streams (make synctest) are only on the mock server.
+  uri: `${LOCAL_MEDIA_SERVER}/media/${CLIP}/hls_tc/index.m3u8`,
   autoplay: true,
 } as const satisfies VideoSource;
 
