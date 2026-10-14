@@ -1,4 +1,4 @@
-import type { Point, Quad } from './types';
+import type { BBox, Point, Quad } from './types';
 
 /** Row-major 3x3 projective matrix acting on column vectors [x, y, 1]. */
 export type Mat3 = [number, number, number, number, number, number, number, number, number];
@@ -88,4 +88,13 @@ export function isConvexQuad(quad: Quad): boolean {
     else if (Math.sign(cross) !== sign) return false;
   }
   return true;
+}
+
+/** [x, y, w, h] of the part of a normalized `quad` inside the frame (0..1); zero-size if none is. */
+export function visibleBBox(quad: Quad): BBox {
+  const xs = quad.map((p) => Math.min(Math.max(p[0], 0), 1));
+  const ys = quad.map((p) => Math.min(Math.max(p[1], 0), 1));
+  const x = Math.min(...xs);
+  const y = Math.min(...ys);
+  return [x, y, Math.max(...xs) - x, Math.max(...ys) - y];
 }

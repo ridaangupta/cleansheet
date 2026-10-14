@@ -243,11 +243,9 @@ def main() -> None:
             bbox = visible_bbox(quad, W, H)
             if bbox is None:
                 continue
-            bx, by, bw, bh = bbox
             per_frame[i].append(SidecarObject(
                 id=t.id, kind="board", category=category.get(brand, "neutral"), brand=brand,
-                quad=[[round(float(x) / W, 5), round(float(y) / H, 5)] for x, y in quad],
-                bbox=[round(bx / W, 5), round(by / H, 5), round(bw / W, 5), round(bh / H, 5)],
+                quad=[[float(x) / W, float(y) / H] for x, y in quad],
                 confidence=round(conf, 3),
             ))
     for i, objects in enumerate(per_frame):

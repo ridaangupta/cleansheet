@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyHomography, cssMatrix3d, growQuad, isConvexQuad, rectToQuad, squareToQuad } from './homography';
+import { applyHomography, cssMatrix3d, growQuad, isConvexQuad, rectToQuad, squareToQuad, visibleBBox } from './homography';
 import type { Point, Quad } from './types';
 
 const perspective: Quad = [
@@ -106,5 +106,14 @@ describe('isConvexQuad', () => {
     // Off-screen corners a model couldn't place (metro_ucv_01, left edge).
     expect(isConvexQuad([[1, 134], [2, 138], [11, 160], [0, 146]])).toBe(false);
     expect(isConvexQuad([[0, 0], [10, 0], [10, 0], [0, 10]])).toBe(false);
+  });
+});
+
+describe('visibleBBox', () => {
+  it('clips a quad that runs off the frame', () => {
+    const [x, y, w, h] = visibleBBox([[-0.1, 0.2], [0.3, 0.2], [0.3, 0.3], [-0.1, 0.3]]);
+    expect([x, y]).toEqual([0, 0.2]);
+    expect(w).toBeCloseTo(0.3);
+    expect(h).toBeCloseTo(0.1);
   });
 });

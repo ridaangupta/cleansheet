@@ -27,6 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
+import sidecar
 from videoio import read_frames
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -42,6 +43,12 @@ def iou(a: np.ndarray, b: np.ndarray) -> float:
     inter = w * h
     union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
     return inter / union if union > 0 else 0.0
+
+
+def xyxy(o: dict, w: int, h: int) -> np.ndarray:
+    """A sidecar object's visible box in pixels."""
+    x, y, bw, bh = sidecar.visible_bbox(o["quad"])
+    return np.array([x * w, y * h, (x + bw) * w, (y + bh) * h])
 
 
 def match(gt: list[np.ndarray], pred: list[np.ndarray], thresh: float) -> list[tuple[int, int]]:
@@ -66,19 +73,18 @@ def main() -> None:
     args = ap.parse_args()
 
     clip_dir = ROOT / "media" / args.clip
-    track = json.loads((clip_dir / "sidecar.json").read_text())
+    track = sidecar.load(clip_dir / "sidecar.json")
     W, H = track["width"], track["height"]
     gt_frames = {round(f["t"] * track["fps"]): f["objects"] for f in track["frames"]}
     category = {b["name"]: b["category"] for b in json.loads(BRANDS_JSON.read_text())["brands"]}
 
     if args.source.suffix == ".json":
-        model_track = json.loads(args.source.read_text())
+        model_track = sidecar.load(args.source)
         by_frame = {round(f["t"] * model_track["fps"]): f["objects"] for f in model_track["frames"]}
 
         def predict(i: int, _frame: np.ndarray):
             objs = by_frame.get(i, [])
-            boxes = [np.array([o["bbox"][0] * W, o["bbox"][1] * H, (o["bbox"][0] + o["bbox"][2]) * W,
-                               (o["bbox"][1] + o["bbox"][3]) * H]) for o in objs]
+            boxes = [xyxy(o, W, H) for o in objs]
             return (boxes, [o["confidence"] for o in objs], [o.get("brand") for o in objs],
                     [np.array(o["quad"]) * [W, H] for o in objs])
     else:
@@ -101,8 +107,7 @@ def main() -> None:
             continue
         frames_scored += 1
         gts = gt_frames[i]
-        gt_boxes = [np.array([o["bbox"][0] * W, o["bbox"][1] * H, (o["bbox"][0] + o["bbox"][2]) * W,
-                              (o["bbox"][1] + o["bbox"][3]) * H]) for o in gts]
+        gt_boxes = [xyxy(o, W, H) for o in gts]
         boxes, confs, brands, kpts = predict(i, frame)
         pairs = match(gt_boxes, boxes, args.iou)
         n_gt += len(gts); n_pred += len(boxes); n_match += len(pairs)

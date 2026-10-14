@@ -5,7 +5,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { objectsAt, samplesVideoFrames, type SidecarObject, type SidecarTrack } from '@Sidecar';
+import {
+  objectsAt,
+  parseSidecar,
+  samplesVideoFrames,
+  visibleBBox,
+  type SidecarFile,
+  type SidecarObject,
+  type SidecarTrack,
+} from '@Sidecar';
 
 import { SHOW_BOXES, SHOW_STATS, SIDECAR_URL, SYNC_LOG, SYNC_OFFSET_S, SYNC_TEST } from './config';
 import { SponsorTreatments } from './SponsorTreatments';
@@ -38,9 +46,9 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
     fetch(SIDECAR_URL)
       .then((res) => {
         if (!res.ok) throw new Error(`${res.status} fetching ${SIDECAR_URL}`);
-        return res.json() as Promise<SidecarTrack>;
+        return res.json() as Promise<SidecarFile>;
       })
-      .then((t) => !cancelled && setTrack(t))
+      .then((f) => !cancelled && setTrack(parseSidecar(f)))
       .catch((e: unknown) => !cancelled && setError(String(e)));
     return () => {
       cancelled = true;
@@ -98,26 +106,28 @@ export const SponsorOverlay = ({ getTime, width, height }: Props) => {
   return (
     <View pointerEvents="none" style={[styles.layer, { left: rect.x, top: rect.y, width: rect.w, height: rect.h }]}>
       <SponsorTreatments objects={snapshot.objects} width={rect.w} height={rect.h} />
-      {SHOW_BOXES && snapshot.objects.map((o) =>
-        o.bbox ? (
-          <View
-            key={o.id}
-            style={[
-              styles.box,
-              {
-                left: o.bbox[0] * rect.w,
-                top: o.bbox[1] * rect.h,
-                width: o.bbox[2] * rect.w,
-                height: o.bbox[3] * rect.h,
-                borderColor: CATEGORY_COLORS[o.category],
-              },
-            ]}>
-            <Text style={[styles.label, { color: CATEGORY_COLORS[o.category] }]} numberOfLines={1}>
-              {o.brand ?? o.id}
-            </Text>
-          </View>
-        ) : null,
-      )}
+      {SHOW_BOXES &&
+        snapshot.objects.map((o) => {
+          const [x, y, w, h] = visibleBBox(o.quad);
+          return (
+            <View
+              key={o.id}
+              style={[
+                styles.box,
+                {
+                  left: x * rect.w,
+                  top: y * rect.h,
+                  width: w * rect.w,
+                  height: h * rect.h,
+                  borderColor: CATEGORY_COLORS[o.category],
+                },
+              ]}>
+              <Text style={[styles.label, { color: CATEGORY_COLORS[o.category] }]} numberOfLines={1}>
+                {o.brand ?? o.id}
+              </Text>
+            </View>
+          );
+        })}
       {(SYNC_TEST || SHOW_STATS) && (
         <View style={styles.hud}>
           <Text style={styles.hudFrame}>{Number.isNaN(frame) ? 'F----' : `F${String(frame).padStart(4, '0')}`}</Text>

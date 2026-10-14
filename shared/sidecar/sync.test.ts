@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { filterObjects, frameIndexAt, objectsAt, samplesVideoFrames } from './sync';
-import type { Quad, SidecarObject, SidecarTrack } from './types';
+import { filterObjects, frameIndexAt, objectsAt, parseSidecar, samplesVideoFrames } from './sync';
+import type { Quad, SidecarFile, SidecarObject, SidecarTrack } from './types';
 
 function quadAt(x: number): Quad {
   return [
@@ -16,8 +16,37 @@ function obj(id: string, x: number, extra: Partial<SidecarObject> = {}): Sidecar
 }
 
 function track(frames: SidecarTrack['frames']): SidecarTrack {
-  return { version: 1, video_id: 'test', fps: 30, width: 1280, height: 720, frames };
+  return { video_id: 'test', fps: 30, width: 1280, height: 720, frames };
 }
+
+describe('parseSidecar', () => {
+  const file: SidecarFile = {
+    version: 2,
+    video_id: 'test',
+    source: 'model',
+    fps: 30,
+    width: 1280,
+    height: 720,
+    tracks: { a: { kind: 'board', category: 'gambling', brand: 'BetNova', confidence: 0.9 } },
+    frames: [
+      { t: 0, objects: [{ id: 'a', quad: quadAt(0) }] },
+      { t: 1 / 30, objects: [] },
+    ],
+  };
+
+  it('joins each object with its track', () => {
+    const tr = parseSidecar(file);
+    expect(tr.frames[0]!.objects[0]).toEqual({ ...file.tracks.a, id: 'a', quad: quadAt(0) });
+    expect(tr.frames[1]!.objects).toEqual([]);
+    expect(tr.source).toBe('model');
+  });
+
+  it('rejects unknown ids and versions', () => {
+    const orphan = { ...file, frames: [{ t: 0, objects: [{ id: 'b', quad: quadAt(0) }] }] };
+    expect(() => parseSidecar(orphan)).toThrow(/b has no entry/);
+    expect(() => parseSidecar({ ...file, version: 1 } as unknown as SidecarFile)).toThrow(/version 1/);
+  });
+});
 
 describe('frameIndexAt', () => {
   const frames = Array.from({ length: 101 }, (_, i) => ({ t: i * 0.1, objects: [] }));
@@ -76,13 +105,12 @@ describe('objectsAt', () => {
     expect(objectsAt(gappy, 1.0, { maxGap: 3 })[0].quad[0][0]).toBeCloseTo(0.5);
   });
 
-  it('interpolates bbox and confidence', () => {
+  it('interpolates confidence', () => {
     const t2 = track([
-      { t: 0, objects: [obj('a', 0, { bbox: [0, 0, 0.2, 0.1], confidence: 0.6 })] },
-      { t: 0.1, objects: [obj('a', 0.1, { bbox: [0.1, 0, 0.2, 0.1], confidence: 0.8 })] },
+      { t: 0, objects: [obj('a', 0, { confidence: 0.6 })] },
+      { t: 0.1, objects: [obj('a', 0.1, { confidence: 0.8 })] },
     ]);
     const [a] = objectsAt(t2, 0.05);
-    expect(a.bbox![0]).toBeCloseTo(0.05);
     expect(a.confidence).toBeCloseTo(0.7);
   });
 

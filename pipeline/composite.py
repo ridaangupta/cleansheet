@@ -281,11 +281,9 @@ def main() -> None:
                     bbox = visible_bbox(quad, width, height)
                     if bbox is None:
                         continue
-                    bx, by, bw, bh = bbox
                     objects.append(SidecarObject(
                         id=board_id, kind=kinds[board_id], category=category[brand], brand=brand,
-                        quad=[[round(float(x) / width, 5), round(float(y) / height, 5)] for x, y in quad],
-                        bbox=[round(bx / width, 5), round(by / height, 5), round(bw / width, 5), round(bh / height, 5)],
+                        quad=[[float(x) / width, float(y) / height] for x, y in quad],
                         confidence=1.0,
                     ))
                     labels.append(pose_label(classes.index(brand), bbox, quad, width, height))

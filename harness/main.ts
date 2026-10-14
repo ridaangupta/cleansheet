@@ -3,7 +3,7 @@
 // The Vega app reuses shared/sidecar and swaps these DOM elements for RN views.
 
 import Hls from 'hls.js';
-import { cssMatrix3d, filterObjects, objectsAt, samplesVideoFrames, type Category, type Quad, type SidecarObject, type SidecarTrack } from '../shared/sidecar';
+import { cssMatrix3d, filterObjects, objectsAt, parseSidecar, samplesVideoFrames, type Category, type Quad, type SidecarFile, type SidecarObject, type SidecarTrack } from '../shared/sidecar';
 
 interface BrandEntry {
   name: string;
@@ -168,10 +168,10 @@ async function loadJson<T>(url: string): Promise<T> {
 
 async function main(): Promise<void> {
   const [sidecar, brands] = await Promise.all([
-    loadJson<SidecarTrack>(sidecarUrl),
+    loadJson<SidecarFile>(sidecarUrl),
     loadJson<{ size: [number, number]; brands: BrandEntry[] }>(`${server}/assets/brands/brands.json`),
   ]);
-  track = sidecar;
+  track = parseSidecar(sidecar);
   const [w, h] = brands.size;
   replacements = brands.brands
     .filter((b) => b.category === 'replacement')

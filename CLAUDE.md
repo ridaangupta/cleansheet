@@ -32,7 +32,7 @@ CC0 footage + composited fictional sponsors
 
 ## Repo layout and commands
 
-- `shared/sidecar/`: the sidecar contract. `schema.json` is the source of truth; `types.ts` and `pipeline/sidecar.py` mirror it, so change all three together. `sync.ts` (`objectsAt`, `filterObjects`) and `homography.ts` (`cssMatrix3d`) are meant to be reused by the Vega app.
+- `shared/sidecar/`: the sidecar contract. `schema.json` is the source of truth; `types.ts` and `pipeline/sidecar.py` mirror it, so change all three together. Version 2: each track's kind, category, brand and confidence are stored once in `tracks`, frames carry only `{id, quad}` (4 decimals, no bbox; `visibleBBox` / `sidecar.visible_bbox` compute it). Readers join them at load: `parseSidecar` in TS, `sidecar.load()` in Python; writers keep building full `SidecarObject`s and `save()` splits them. `sync.ts` (`objectsAt`, `filterObjects`) and `homography.ts` (`cssMatrix3d`) are meant to be reused by the Vega app.
 - `pipeline/`: Python (run with `.venv/bin/python`; scripts import sibling modules directly). Order: brands → synth_clip, or for real footage find_shots → cut_clip → annotate → composite → package_hls.sh. Detector: composite (pose labels) → `make dataset` (seed variants) → train → detect (model sidecar) → eval_detector. Training deps (ultralytics/PyTorch) are in `requirements-train.txt`, not `requirements.txt`.
 - `cloud/mock_server.py`: serves `media/` and `assets/` on :8787 with CORS (`--host 0.0.0.0` for the Virtual Device).
 - `harness/`: Vite page that plays HLS and draws overlays; the testbed for sync before Vega. `?clip=<name>` picks the clip; it compares the `currentTime` clock (what Vega exposes) against `requestVideoFrameCallback` and has an offset slider for calibrating skew.

@@ -1,4 +1,22 @@
-import type { BBox, Category, Quad, SidecarFrame, SidecarObject, SidecarTrack } from './types';
+import type { Category, Quad, SidecarFile, SidecarFrame, SidecarObject, SidecarTrack } from './types';
+
+/**
+ * Expand a sidecar file into frames of full objects (each joined with its track's attributes).
+ * Done once at load: lookups then return the same arrays until the frame changes, which the
+ * overlays rely on to skip re-renders. Throws on an unknown version or track id.
+ */
+export function parseSidecar(file: SidecarFile): SidecarTrack {
+  if (file.version !== 2) throw new Error(`unsupported sidecar version ${String(file.version)}`);
+  const frames = file.frames.map((f) => ({
+    t: f.t,
+    objects: f.objects.map(({ id, quad }) => {
+      const info = file.tracks[id];
+      if (!info) throw new Error(`sidecar object ${id} has no entry in tracks`);
+      return { ...info, id, quad };
+    }),
+  }));
+  return { video_id: file.video_id, source: file.source, fps: file.fps, width: file.width, height: file.height, frames };
+}
 
 export interface SyncOptions {
   /**
@@ -125,9 +143,5 @@ function lerp(a: number, b: number, t: number): number {
 
 function lerpObject(a: SidecarObject, b: SidecarObject, t: number): SidecarObject {
   const quad = a.quad.map((p, k) => [lerp(p[0], b.quad[k]![0], t), lerp(p[1], b.quad[k]![1], t)]) as Quad;
-  const out: SidecarObject = { ...(t < 0.5 ? a : b), quad, confidence: lerp(a.confidence, b.confidence, t) };
-  if (a.bbox && b.bbox) {
-    out.bbox = a.bbox.map((v, k) => lerp(v, b.bbox![k]!, t)) as BBox;
-  }
-  return out;
+  return { ...(t < 0.5 ? a : b), quad, confidence: lerp(a.confidence, b.confidence, t) };
 }
