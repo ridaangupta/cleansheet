@@ -73,3 +73,19 @@ export function growQuad(quad: Quad, px: number): Quad {
     applyHomography(m, [-du, 1 + dv]),
   ];
 }
+
+/**
+ * True if `quad` is strictly convex. A warp onto a non-convex or collapsed quad (e.g. corners a
+ * model couldn't place) sends the image across the screen, so renderers should skip it.
+ */
+export function isConvexQuad(quad: Quad): boolean {
+  let sign = 0;
+  for (let i = 0; i < 4; i++) {
+    const [a, b, c] = [quad[i]!, quad[(i + 1) % 4]!, quad[(i + 2) % 4]!];
+    const cross = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+    if (Math.abs(cross) < 1e-9) return false;
+    if (sign === 0) sign = Math.sign(cross);
+    else if (Math.sign(cross) !== sign) return false;
+  }
+  return true;
+}

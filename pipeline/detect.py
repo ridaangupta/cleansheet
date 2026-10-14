@@ -2,6 +2,8 @@
 
 Per frame the detector gives boxes, a brand class and 4 corner keypoints. On top of that:
 
+  hidden corners  corners of boards cut by the frame edge are rebuilt from a neighbouring board
+                  (fill_hidden_corners); the model only learned on-screen corners
   camera motion   one homography per frame step (boards.camera_motion): broadcast cameras only
                   pan/tilt/zoom, so it moves every board the same way
   tracking        detections are linked across frames by IoU against the previous frame's boards
@@ -37,6 +39,8 @@ BRANDS_JSON = ROOT / "assets" / "brands" / "brands.json"
 WINDOW = 5        # smoothing half-window, frames
 MIN_DETECTIONS = 6  # shorter tracks are dropped as noise
 MOTION_SCALE = 0.5  # camera motion is estimated on half-size frames
+KPT_VISIBLE = 0.5   # keypoint confidence below this = corner off screen (trained unlabelled)
+KPT_FILLED = 0.3    # smoothing weight of a rebuilt off-screen corner, below any seen one
 
 
 @dataclass
@@ -69,6 +73,40 @@ def weighted_median(values: np.ndarray, weights: np.ndarray) -> float:
     order = np.argsort(values)
     cum = np.cumsum(weights[order])
     return float(values[order][np.searchsorted(cum, cum[-1] / 2)])
+
+
+def fill_hidden_corners(dets: list[Det]) -> list[Det]:
+    """Rebuild off-screen corners (keypoint confidence < KPT_VISIBLE) of boards cut by the frame edge.
+
+    The model is trained with off-screen corners unlabelled, so it can't place them: their
+    keypoints collapse onto the visible edge, and a warp onto that quad blows up across the
+    screen. Boards in a row share a size, so a hidden corner is its visible partner on the same
+    edge (TL-TR, BL-BR) moved by that edge of the nearest fully visible board in the frame.
+    Detections that can't be rebuilt that way are dropped.
+    """
+    full = [d for d in dets if (d.kconf >= KPT_VISIBLE).all()]
+    out = []
+    for d in dets:
+        hidden = d.kconf < KPT_VISIBLE
+        if not hidden.any():
+            out.append(d)
+            continue
+        if not full:
+            continue
+        centre = d.quad[~hidden].mean(axis=0) if (~hidden).any() else d.quad.mean(axis=0)
+        n = min(full, key=lambda f: np.linalg.norm(f.quad.mean(axis=0) - centre)).quad
+        quad = d.quad.copy()
+        ok = True
+        for c, partner in ((0, 1), (1, 0), (3, 2), (2, 3)):
+            if not hidden[c]:
+                continue
+            if hidden[partner]:
+                ok = False
+                break
+            quad[c] = quad[partner] + (n[c] - n[partner])
+        if ok:
+            out.append(Det(d.box, d.conf, d.cls, quad, np.where(hidden, KPT_FILLED, d.kconf)))
+    return out
 
 
 def merge_duplicates(tracks: list[Track], min_iou: float = 0.5) -> list[Track]:
@@ -140,6 +178,7 @@ def main() -> None:
         kc = r.keypoints.conf.cpu().numpy() if r.keypoints.conf is not None else np.ones(kxy.shape[:2])
         dets = [Det(b, float(c), int(k), q, kcf) for b, c, k, q, kcf in zip(
             r.boxes.xyxy.cpu().numpy(), r.boxes.conf.cpu().numpy(), r.boxes.cls.cpu().numpy(), kxy, kc)]
+        dets = fill_hidden_corners(dets)
 
         active = [t for t in active if i - t.last <= args.max_gap]
         # Each active track's last detection, moved into this frame by the camera.

@@ -7,7 +7,7 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Image, StyleSheet } from 'react-native';
 
-import { filterObjects, growQuad, matrix4, type Quad, type SidecarObject } from '@Sidecar';
+import { filterObjects, growQuad, isConvexQuad, matrix4, type Quad, type SidecarObject } from '@Sidecar';
 
 import { BRANDS_URL, MEDIA_SERVER, REPLACE_MIN_CONFIDENCE, TEXTURES_URL } from './config';
 import { treatmentFor, useViewerPrefs } from './prefs';
@@ -74,7 +74,11 @@ function useAssets(): Assets | null {
 export const SponsorTreatments = ({ objects, width, height }: Props) => {
   const assets = useAssets();
   const prefs = useViewerPrefs();
-  const treated = useMemo(() => filterObjects(objects, { categories: prefs.hidden }), [objects, prefs.hidden]);
+  // A non-convex quad would warp the image across the screen: skip it rather than draw it.
+  const treated = useMemo(
+    () => filterObjects(objects, { categories: prefs.hidden }).filter((o) => isConvexQuad(o.quad)),
+    [objects, prefs.hidden],
+  );
   if (!assets || assets.replacements.length === 0) return null;
 
   return (

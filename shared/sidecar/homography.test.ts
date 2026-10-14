@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyHomography, cssMatrix3d, growQuad, rectToQuad, squareToQuad } from './homography';
+import { applyHomography, cssMatrix3d, growQuad, isConvexQuad, rectToQuad, squareToQuad } from './homography';
 import type { Point, Quad } from './types';
 
 const perspective: Quad = [
@@ -94,5 +94,17 @@ describe('growQuad', () => {
       const sides = g.map((a, i) => Math.sign(cross(a, g[(i + 1) % 4], p)));
       expect(new Set(sides).size).toBe(1);
     });
+  });
+});
+
+describe('isConvexQuad', () => {
+  it('accepts a perspective board', () => {
+    expect(isConvexQuad(perspective)).toBe(true);
+  });
+
+  it('rejects a bow-tie and a collapsed edge', () => {
+    // Off-screen corners a model couldn't place (metro_ucv_01, left edge).
+    expect(isConvexQuad([[1, 134], [2, 138], [11, 160], [0, 146]])).toBe(false);
+    expect(isConvexQuad([[0, 0], [10, 0], [10, 0], [0, 10]])).toBe(false);
   });
 });
