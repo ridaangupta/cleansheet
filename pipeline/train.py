@@ -52,7 +52,7 @@ def main() -> None:
     ap.add_argument("--model", default="yolo11n-pose.pt")
     ap.add_argument("--epochs", type=int, default=60)
     ap.add_argument("--imgsz", type=int, default=1280, help="the far rows are ~10 px tall at 720p; don't shrink")
-    ap.add_argument("--batch", type=int, default=8)
+    ap.add_argument("--batch", type=int, default=4, help="8 at imgsz 1280 needs ~11 GB of MPS memory and swaps on an 18 GB Mac")
     ap.add_argument("--name", default="boards")
     args = ap.parse_args()
 

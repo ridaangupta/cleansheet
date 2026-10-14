@@ -97,7 +97,7 @@ def main() -> None:
         cv2.imwrite(str(out_mosaic / f"{bid}.png"), cv2.resize(cells, (w, h), interpolation=cv2.INTER_NEAREST))
         index[bid] = {"w": w, "h": h, "frames": len(imgs)}
     (out_dir / "index.json").write_text(json.dumps(index, indent=1) + "\n")
-    print(f"wrote {len(index)} board textures (blur + mosaic) to {args.clip_dir / 'textures'}")
+    print(f"wrote {len(index)} board textures (blur + mosaic) to {out_dir}")
 
 
 if __name__ == "__main__":
