@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Cleansheet: CDN for the HLS streams, sidecar tracks and art (private S3 behind CloudFront), and the
+  per-viewer sponsor-inventory API (Lambda function URL + DynamoDB). Deploy with cloud/deploy.sh.
+  Free plan, us-east-2; everything here is always-free or pay-per-request at demo scale.
+
+Resources:
+  # --- CDN -------------------------------------------------------------------------------------
+
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub cleansheet-media-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      OwnershipControls:
+        Rules: [{ ObjectOwnership: BucketOwnerEnforced }]
+
+  MediaOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub cleansheet-media-${AWS::AccountId}
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: Cleansheet media (HLS, sidecar tracks, textures, art)
+        Enabled: true
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: media
+            DomainName: !GetAtt MediaBucket.RegionalDomainName
+            OriginAccessControlId: !Ref MediaOAC
+            S3OriginConfig: { OriginAccessIdentity: "" }
+        DefaultCacheBehavior:
+          TargetOriginId: media
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          Compress: true  # gzip/brotli for the sidecar JSON and playlists
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6          # Managed-CachingOptimized
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # Managed-CORS-S3Origin
+          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c  # Managed-SimpleCORS
+
+  MediaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: CloudFrontReadOnly
+            Effect: Allow
+            Principal: { Service: cloudfront.amazonaws.com }
+            Action: s3:GetObject
+            Resource: !Sub ${MediaBucket.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+
+  # --- Sponsor-inventory API ---------------------------------------------------------------------
+
+  # One table, two item types:
+  #   pk viewer#<viewer id>  sk prefs           hidden categories + treatment per category
+  #   pk video#<video id>    sk board#<track>   replacement sponsor for that board slot
+  InventoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: cleansheet-inventory
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+
+  ApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: inventory-table
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:Query]
+                Resource: !GetAtt InventoryTable.Arn
+
+  ApiLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/cleansheet-inventory-api
+      RetentionInDays: 7
+
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: ApiLogs
+    Properties:
+      FunctionName: cleansheet-inventory-api
+      Description: Per-viewer sponsor inventory (prefs + board slot sponsors). Code from cloud/inventory/handler.py.
+      Runtime: python3.12
+      Architectures: [arm64]
+      Handler: handler.handler
+      MemorySize: 128
+      Timeout: 5
+      ReservedConcurrentExecutions: 5  # caps what a flood of requests on the public URL can cost
+      Role: !GetAtt ApiRole.Arn
+      Environment:
+        Variables:
+          TABLE: !Ref InventoryTable
+      Code:
+        # Placeholder: cloud/deploy.sh uploads the real code right after the stack deploys.
+        ZipFile: |
+          def handler(event, context):
+              return {"statusCode": 503, "body": "deploying"}
+
+  ApiUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref ApiFunction
+      AuthType: NONE
+      Cors:
+        AllowOrigins: ["*"]
+        AllowMethods: [GET, PUT]
+        AllowHeaders: [content-type]
+        MaxAge: 3600
+
+  ApiUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  ApiInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+Outputs:
+  MediaBucket:
+    Value: !Ref MediaBucket
+  DistributionId:
+    Value: !Ref Distribution
+  MediaBaseUrl:
+    Description: Replaces http://10.0.2.2:8787 (the mock server) in the app.
+    Value: !Sub https://${Distribution.DomainName}
+  ApiUrl:
+    Value: !GetAtt ApiUrl.FunctionUrl
