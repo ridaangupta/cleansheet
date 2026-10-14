@@ -7,10 +7,12 @@ Per frame the detector gives boxes, a brand class and 4 corner keypoints. On top
   camera motion   one homography per frame step (boards.camera_motion): broadcast cameras only
                   pan/tilt/zoom, so it moves every board the same way
   tracking        detections are linked across frames by IoU against the previous frame's boards
-                  moved by the camera step; a track survives --max-gap missed frames
+                  moved by the camera step or by the track's own velocity, same brand only; a track
+                  survives --max-gap missed frames
   smoothing       each track's corners on frame i are the confidence-weighted median of its
                   detections within +-WINDOW frames, each warped into frame i by the camera
-                  motion. This removes keypoint jitter and fills short gaps
+                  motion. This removes keypoint jitter and fills short gaps. Neighbours that
+                  disagree with the nearest detection are left out (camera motion fails in fast pans)
   per-track       brand = confidence-weighted vote; confidence = median detection confidence, so a
   attributes      board doesn't flicker between the app's replace and blur treatments
 
@@ -40,7 +42,9 @@ WINDOW = 5        # smoothing half-window, frames
 MIN_DETECTIONS = 6  # shorter tracks are dropped as noise
 MOTION_SCALE = 0.5  # camera motion is estimated on half-size frames
 KPT_VISIBLE = 0.5   # keypoint confidence below this = corner off screen (trained unlabelled)
-KPT_FILLED = 0.3    # smoothing weight of a rebuilt off-screen corner, below any seen one
+GATE_FRACTION = 0.25  # smoothing drops neighbours further than this x board height from the nearest detection
+GATE_MIN_PX = 3.0
+KPT_FILLED = 0.3   # smoothing weight of a rebuilt off-screen corner, below any seen one
 
 
 @dataclass
@@ -181,15 +185,27 @@ def main() -> None:
         dets = fill_hidden_corners(dets)
 
         active = [t for t in active if i - t.last <= args.max_gap]
-        # Each active track's last detection, moved into this frame by the camera.
-        predicted = [quad_box(warp(rel(t.last, i), t.dets[t.last].quad), W, H) for t in active]
-        pairs = sorted(((iou(p, d.box), ti, di) for ti, p in enumerate(predicted) for di, d in enumerate(dets)),
-                       reverse=True)
+        # Each active track's last detection moved into this frame two ways: by the camera, and by
+        # the track's own recent velocity (better when camera motion fails in a fast pan). A
+        # detection matches on whichever prediction overlaps it more.
+        predicted = [[quad_box(warp(rel(t.last, i), t.dets[t.last].quad), W, H)] for t in active]
+        for t, p in zip(active, predicted):
+            prev = [j for j in t.dets if j < t.last]
+            if prev:
+                j = max(prev)
+                v = (t.dets[t.last].quad - t.dets[j].quad) / (t.last - j)
+                p.append(quad_box(t.dets[t.last].quad + v * (i - t.last), W, H))
+        pairs = sorted(((max(iou(b, d.box) for b in p), ti, di)
+                        for ti, p in enumerate(predicted) for di, d in enumerate(dets)), reverse=True)
         used_t, used_d = set(), set()
         for v, ti, di in pairs:
             if v < args.match_iou:
                 break
             if ti in used_t or di in used_d:
+                continue
+            # Same brand only: in fast pans the camera prediction is off by up to half a small
+            # board, and IoU alone lets a track slide onto the neighbouring board (tachira_04).
+            if dets[di].cls != active[ti].dets[active[ti].last].cls:
                 continue
             used_t.add(ti); used_d.add(di)
             active[ti].dets[i] = dets[di]; active[ti].last = i
@@ -214,6 +230,14 @@ def main() -> None:
             if not near:
                 continue  # inside a gap longer than the window: drop rather than guess
             quads = np.stack([warp(rel(j, i), t.dets[j].quad) for j in near])          # (n, 4, 2)
+            # Camera motion can be badly off in fast pans (~7 px/frame on tachira_04), and over
+            # the window that moves neighbours by more than a board's height. Keep only those
+            # that agree with the nearest detection in time (this frame's own when there is one).
+            ref = quads[int(np.argmin([abs(j - i) for j in near]))]
+            gate = max(GATE_MIN_PX, GATE_FRACTION * float(np.linalg.norm(ref[3] - ref[0])))
+            keep = np.abs(quads - ref).mean(axis=(1, 2)) <= gate
+            near = [j for j, k in zip(near, keep) if k]
+            quads = quads[keep]
             wts = np.stack([t.dets[j].conf * np.maximum(t.dets[j].kconf, 0.05) for j in near])  # (n, 4)
             quad = np.array([[weighted_median(quads[:, c, a], wts[:, c]) for a in (0, 1)] for c in range(4)])
             bbox = visible_bbox(quad, W, H)

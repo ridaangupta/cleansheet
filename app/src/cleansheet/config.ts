@@ -10,7 +10,7 @@ export const CLIP = 'tachira_02';
  * 'model' (pipeline/detect.py: the detector's tracked output, with real confidences, so 'auto'
  * blurs the unsure boards).
  */
-export const SIDECAR_SOURCE = 'ground_truth' as 'ground_truth' | 'model';
+export const SIDECAR_SOURCE = 'model' as 'ground_truth' | 'model';
 
 const MODEL = SIDECAR_SOURCE === 'model';
 export const SIDECAR_URL = `${MEDIA_SERVER}/media/${CLIP}/${MODEL ? 'sidecar.model.json' : 'sidecar.json'}`;
