@@ -15,6 +15,11 @@ is tone-matched to them (brightness, contrast, saturation), gets thin dark seams
 by a clip-wide blur matched to the footage's sharpness. Boards split from one row get their own
 shuffled brand order with no neighbouring repeats. --plain turns all of this off.
 
+People in front of the boards (players, staff) are segmented in the original frame (YOLO
+segmentation, ultralytics from requirements-train.txt) and put back on top after pasting, so
+the fake boards sit behind them. On by default for broadcast clips; --no-persons skips it.
+Labels and the sidecar keep the whole board quad.
+
 Usage: python pipeline/composite.py footage/synth.mp4 [--boards footage/synth.boards.json] [--plain]
 """
 
@@ -37,6 +42,8 @@ ROOT = Path(__file__).resolve().parent.parent
 BRANDS_JSON = ROOT / "assets" / "brands" / "brands.json"
 MIN_VISIBLE_PX = 6
 MIN_VISIBLE_FRACTION = 0.25
+PERSON_MODEL = "yolo11m-seg.pt"  # COCO; class 0 = person
+PERSON_CONF = 0.25
 
 
 def load_brands() -> tuple[list[dict], dict[str, np.ndarray]]:
@@ -222,6 +229,30 @@ def paste(frame: np.ndarray, art: np.ndarray, quad: np.ndarray, rng: np.random.G
     frame[y0:y1, x0:x1] = np.clip(roi * (1 - alpha) + warped * alpha, 0, 255).astype(np.uint8)
 
 
+class PersonMasker:
+    """Soft masks (H, W, 1 float) of the people in a frame, from YOLO instance segmentation."""
+
+    def __init__(self, model: str = PERSON_MODEL, imgsz: int = 1280):
+        try:
+            from ultralytics import YOLO
+        except ImportError:
+            raise SystemExit("person masking needs ultralytics: pip install -r requirements-train.txt "
+                             "(or pass --no-persons)")
+        self.model, self.imgsz = YOLO(model), imgsz
+
+    def __call__(self, frame: np.ndarray) -> np.ndarray | None:
+        r = self.model.predict(frame, classes=[0], conf=PERSON_CONF, imgsz=self.imgsz, retina_masks=True,
+                               device="mps", verbose=False)[0]
+        if r.masks is None:
+            return None
+        mask = (r.masks.data.cpu().numpy().max(axis=0) > 0.5).astype(np.uint8)
+        if mask.shape != frame.shape[:2]:
+            mask = cv2.resize(mask, (frame.shape[1], frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+        # One pixel of growth and a soft edge, so no fringe of the old board shows around a player.
+        mask = cv2.dilate(mask, np.ones((3, 3), np.uint8)).astype(np.float32)
+        return cv2.GaussianBlur(mask, (0, 0), 0.8)[..., None]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("video", type=Path)
@@ -231,6 +262,7 @@ def main() -> None:
     ap.add_argument("--frame-stride", type=int, default=2, help="export every Nth frame to the dataset")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--plain", action="store_true", help="no tone matching, seams, blur matching or row mixing")
+    ap.add_argument("--no-persons", action="store_true", help="don't put people back on top of the boards")
     args = ap.parse_args()
 
     video: Path = args.video
@@ -262,6 +294,7 @@ def main() -> None:
         noise = 1.0
         print(f"realism: tone-matched {len(stats)} boards, blur sigma {sigma:g}")
 
+    persons = PersonMasker() if real and not args.no_persons else None
     hz = args.sidecar_hz or fps
     track = SidecarTrack(video_id=video.stem, fps=fps, width=width, height=height, source="ground_truth")
     rng = np.random.default_rng(args.seed)
@@ -271,6 +304,7 @@ def main() -> None:
         silent = Path(tmp) / "video.mp4"
         with VideoWriter(silent, width, height, fps) as writer:
             for i, frame in enumerate(read_frames(video)):
+                original = frame.copy() if persons else None
                 objects, labels = [], []
                 for board_id, per_frame in quads.items():
                     quad = per_frame.get(i)
@@ -287,6 +321,10 @@ def main() -> None:
                         confidence=1.0,
                     ))
                     labels.append(pose_label(classes.index(brand), bbox, quad, width, height))
+                if persons and objects:
+                    a = persons(original)
+                    if a is not None:
+                        frame[:] = np.clip(frame * (1 - a) + original * a, 0, 255).astype(np.uint8)
                 writer.write(frame)
 
                 if i == 0 or int(i * hz / fps) != int((i - 1) * hz / fps):
