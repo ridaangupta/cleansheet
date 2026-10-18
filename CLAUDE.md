@@ -95,6 +95,7 @@ HLS is packaged with B-frames off and timestamps starting at 0 so `currentTime` 
 ## Working conventions
 
 - Pitch and user-facing copy frame the product as **per-viewer sponsor inventory**, not "removing sponsors".
+- Licensing: the repo is MIT, except `pipeline/`, which is AGPL-3.0 because it uses Ultralytics. Keep Ultralytics imports inside `pipeline/`. The repo goes public just before submission.
 - Keep a running friction log in `FRICTION_LOG.md` (table: date, tool, task, what went wrong, time lost, fix) of every Vega SDK / Builder Tools MCP / AWS issue hit (it counts for up to a 10% judging bonus). Add entries as problems come up.
 - Overlay sync with `currentTime` was the riskiest piece; it's proven on the VVD (on the displayed frame in 8 of 12 samples, never more than 1 off, with a 0.117 s offset and snapped lookups). Re-check with the sync test after changing the player, packaging, or overlay render path.
 - When the compositing script runs, it should output per-frame ground-truth labels alongside the video; use them for training data and precision/recall numbers.

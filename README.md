@@ -48,4 +48,6 @@ Known limitation: the compositor pastes over anything in front of a board (playe
 
 ## License
 
-MIT. All brands in `assets/brands/` are fictional.
+- `pipeline/` is AGPL-3.0 (`pipeline/LICENSE`): the detector training, inference and person masking use [Ultralytics YOLO](https://github.com/ultralytics/ultralytics), which is AGPL-3.0, and so would any weights trained with it.
+- Everything else (the Vega app, `shared/`, `cloud/`, `harness/`, assets) is MIT (`LICENSE`). None of it imports Ultralytics. `app/` is forked from Amazon's `vega-sports-app` (MIT-0, `app/LICENSE`).
+- All brands in `assets/brands/` are fictional. Footage licenses are in `footage/LICENSES.md`.
