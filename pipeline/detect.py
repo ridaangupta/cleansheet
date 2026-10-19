@@ -13,6 +13,8 @@ Per frame the detector gives boxes, a brand class and 4 corner keypoints. On top
                   detections within +-WINDOW frames, each warped into frame i by the camera
                   motion. This removes keypoint jitter and fills short gaps. Neighbours that
                   disagree with the nearest detection are left out (camera motion fails in fast pans)
+  bad shapes      a smoothed quad that isn't convex or is far more foreshortened than any real
+                  board (sidecar.is_renderable) is dropped for that frame; the app holds the track
   per-track       brand = confidence-weighted vote; confidence = median detection confidence, so a
   attributes      board doesn't flicker between the app's replace and blur treatments
 
@@ -33,7 +35,7 @@ import numpy as np
 import boards as boards_io
 from composite import visible_bbox
 from eval_detector import iou
-from sidecar import SidecarFrame, SidecarObject, SidecarTrack
+from sidecar import SidecarFrame, SidecarObject, SidecarTrack, is_renderable
 from videoio import probe, read_frames
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -241,8 +243,8 @@ def main() -> None:
             wts = np.stack([t.dets[j].conf * np.maximum(t.dets[j].kconf, 0.05) for j in near])  # (n, 4)
             quad = np.array([[weighted_median(quads[:, c, a], wts[:, c]) for a in (0, 1)] for c in range(4)])
             bbox = visible_bbox(quad, W, H)
-            if bbox is None:
-                continue
+            if bbox is None or not is_renderable(quad):
+                continue  # off screen, or a corner nearly on another (the app would skip it anyway)
             per_frame[i].append(SidecarObject(
                 id=t.id, kind="board", category=category.get(brand, "neutral"), brand=brand,
                 quad=[[float(x) / W, float(y) / H] for x, y in quad],

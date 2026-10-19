@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { applyHomography, cssMatrix3d, growQuad, isConvexQuad, rectToQuad, squareToQuad, visibleBBox } from './homography';
+import {
+  applyHomography,
+  cssMatrix3d,
+  foreshortening,
+  growQuad,
+  isConvexQuad,
+  isRenderableQuad,
+  rectToQuad,
+  squareToQuad,
+  visibleBBox,
+} from './homography';
 import type { Point, Quad } from './types';
 
 const perspective: Quad = [
@@ -106,6 +116,26 @@ describe('isConvexQuad', () => {
     // Off-screen corners a model couldn't place (metro_ucv_01, left edge).
     expect(isConvexQuad([[1, 134], [2, 138], [11, 160], [0, 146]])).toBe(false);
     expect(isConvexQuad([[0, 0], [10, 0], [10, 0], [0, 10]])).toBe(false);
+  });
+});
+
+describe('isRenderableQuad', () => {
+  it('accepts a perspective board', () => {
+    expect(foreshortening(perspective)).toBeLessThan(2);
+    expect(isRenderableQuad(perspective)).toBe(true);
+  });
+
+  it('is 1 for a rectangle and the same for normalized and pixel quads', () => {
+    expect(foreshortening([[0, 0], [4, 0], [4, 1], [0, 1]])).toBeCloseTo(1, 12);
+    const px = perspective.map(([x, y]) => [x / 1280, y / 720]) as typeof perspective;
+    expect(foreshortening(px)).toBeCloseTo(foreshortening(perspective), 9);
+  });
+
+  it('rejects a convex quad with a corner almost on another', () => {
+    // tachira_02 model track at the left edge (pixels): drawn as a triangle across the VVD screen.
+    const sliver: Quad = [[0, 252], [26, 245], [20, 268], [0, 254]];
+    expect(isConvexQuad(sliver)).toBe(true);
+    expect(isRenderableQuad(sliver)).toBe(false);
   });
 });
 

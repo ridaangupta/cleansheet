@@ -108,6 +108,37 @@ def visible_bbox(quad: list[list[float]]) -> list[float]:
     return [min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)]
 
 
+MAX_FORESHORTENING = 2.0  # mirrors homography.ts: real boards stay under ~1.2
+
+
+def foreshortening(quad) -> float:
+    """Largest over smallest projective weight of the unit square -> quad homography over its corners
+    (1 = no perspective, inf = the plane folds through the horizon). Same as homography.ts."""
+    (x0, y0), (x1, y1), (x2, y2), (x3, y3) = [(float(x), float(y)) for x, y in quad]
+    sx, sy = x0 - x1 + x2 - x3, y0 - y1 + y2 - y3
+    den = (x1 - x2) * (y3 - y2) - (x3 - x2) * (y1 - y2)
+    if den == 0:
+        return float("inf")
+    g = (sx * (y3 - y2) - (x3 - x2) * sy) / den
+    h = ((x1 - x2) * sy - sx * (y1 - y2)) / den
+    ws = [1.0, g + 1, g + h + 1, h + 1]
+    lo, hi = min(ws), max(ws)
+    return hi / lo if lo > 0 else float("inf")
+
+
+def is_renderable(quad) -> bool:
+    """Convex and not extremely foreshortened (homography.ts isRenderableQuad): anything else is a
+    detector error that a warp draws as a triangle across the screen."""
+    sign = 0.0
+    for i in range(4):
+        a, b, c = quad[i], quad[(i + 1) % 4], quad[(i + 2) % 4]
+        cross = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])
+        if abs(cross) < 1e-9 or (sign and (cross > 0) != (sign > 0)):
+            return False
+        sign = sign or cross
+    return foreshortening(quad) <= MAX_FORESHORTENING
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         sys.exit(__doc__)

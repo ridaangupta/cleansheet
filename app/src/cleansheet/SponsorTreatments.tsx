@@ -12,7 +12,7 @@ import { logWarning } from '@AppUtils/logging';
 import {
   filterObjects,
   growQuad,
-  isConvexQuad,
+  isRenderableQuad,
   matrix4,
   type Quad,
   type SidecarObject,
@@ -143,11 +143,11 @@ function useAssets(): Assets | null {
 export const SponsorTreatments = ({ objects, width, height }: Props) => {
   const assets = useAssets();
   const prefs = useViewerPrefs();
-  // A non-convex quad would warp the image across the screen: skip it rather than draw it.
+  // A non-convex or extremely foreshortened quad warps into a triangle across the screen: skip it.
   const treated = useMemo(
     () =>
       filterObjects(objects, { categories: prefs.hidden }).filter((o) =>
-        isConvexQuad(o.quad),
+        isRenderableQuad(o.quad),
       ),
     [objects, prefs.hidden],
   );

@@ -90,6 +90,31 @@ export function isConvexQuad(quad: Quad): boolean {
   return true;
 }
 
+/**
+ * How much farther away the board's far end is than its near end: the ratio of the largest to the
+ * smallest projective weight over its corners (1 = no perspective). Infinity if the quad's plane
+ * folds through the horizon. Unaffected by scaling, so normalized and pixel quads agree.
+ */
+export function foreshortening(quad: Quad): number {
+  const m = squareToQuad(quad);
+  const ws = [m[8], m[6] + m[8], m[6] + m[7] + m[8], m[7] + m[8]];
+  const lo = Math.min(...ws);
+  const hi = Math.max(...ws);
+  return lo > 0 ? hi / lo : Infinity; // the top-left weight is always 1
+}
+
+/** Real boards stay under ~1.2; past this the quad is a detector error (a corner nearly on another). */
+export const MAX_FORESHORTENING = 2;
+
+/**
+ * True if a warp onto `quad` draws something board-shaped: convex, and not so foreshortened that
+ * the warp's far corner runs off toward infinity. Vega draws such a warp as a triangle across the
+ * screen, so renderers should skip the quad.
+ */
+export function isRenderableQuad(quad: Quad): boolean {
+  return isConvexQuad(quad) && foreshortening(quad) <= MAX_FORESHORTENING;
+}
+
 /** [x, y, w, h] of the part of a normalized `quad` inside the frame (0..1); zero-size if none is. */
 export function visibleBBox(quad: Quad): BBox {
   const xs = quad.map((p) => Math.min(Math.max(p[0], 0), 1));
