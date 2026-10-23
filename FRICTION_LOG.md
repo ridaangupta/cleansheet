@@ -12,6 +12,7 @@ Every snag hit with the Vega SDK, the Vega Virtual Device, React Native for Vega
 | 2 | Oct 8 | Vega Virtual Device | Display froze while the app kept running | High | 10 min |
 | 3 | Oct 8 | Vega CLI | Screenshot tool doesn't work on the Virtual Device | High | 5 min, then a workaround on every visual check |
 | 4 | Oct 8 | W3C Media on Vega | No presented-frame timestamp to measure overlay sync | High | 20 min |
+| 23 | Oct 23 | Vega Virtual Device | At `--display-res=1920,1080`, some overlay images silently aren't drawn | High | 20 min, one demo take discarded |
 | 5 | Oct 9 | `vega-sports-app` | Sample requests microphone access it doesn't use | Medium | 15 min, device stopped mid-test |
 | 6 | Oct 9 | React Native for Vega docs | Perspective `matrix` and blur support undocumented | Medium | 45 min |
 | 7 | Oct 9 | React Native for Vega | `requestAnimationFrame` fires 900-3,000 times/s | Medium | 15 min |
@@ -31,7 +32,7 @@ Every snag hit with the Vega SDK, the Vega Virtual Device, React Native for Vega
 | 21 | Oct 9 | Vega Virtual Device / macOS | Window capture fails when the VVD window is off screen | Low | 10 min |
 | 22 | Oct 10 | `vega-sports-app` | Player exits to the details page when a video ends | Low | 5 min |
 
-Total time lost: about 4 hours.
+Total time lost: about 4.5 hours.
 
 ## Entries
 
@@ -232,3 +233,12 @@ Total time lost: about 4 hours.
 - **Actual:** the sample navigates back to the details screen when a video ends, kicking the viewer out mid-test.
 - **Workaround:** loop the clip on `ended` (`LOOP_CLIP` in `app/src/cleansheet/config.ts`).
 - **Suggestion:** a loop option in the sample's player settings.
+
+### 23. Overlay images silently dropped at 1080p display resolution (High)
+
+- **Task:** record the demo video at full HD on the Virtual Device (Oct 23).
+- **Steps:** `vega virtual-device start -t 300 --display-res=1920,1080`, launched the app, set Gambling to Replace, recorded playback.
+- **Expected:** the same overlay as at the default resolution: every hidden board covered by its warped replacement (about 16 `Image` views with `matrix` transforms).
+- **Actual:** roughly half the replacements never appeared, the same boards every loop, with no warning or log. The sidecar data and the app's own filtering were checked and passed every board; restarting the device at its default resolution drew all of them.
+- **Workaround:** record at the default display resolution with a large Virtual Device window, and scale the capture to 1080p.
+- **Suggestion:** document any per-frame view or texture limits that depend on display resolution, and log a warning when an `Image` is skipped at draw time.
