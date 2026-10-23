@@ -5,9 +5,9 @@ Vega OS (React Native 0.83) app. Forked from [vega-sports-app](https://github.co
 Changes from upstream so far:
 - `src/cleansheet/`: our code. `SponsorOverlay.tsx` looks up the sidecar from `currentTime` (mounted in `src/services/videoPlayer/components/VideoPlayer/VideoPlayer.tsx`); `SponsorTreatments.tsx` warps a replacement sponsor (or, below `REPLACE_MIN_CONFIDENCE`, the board's blurred texture) onto every board in a hidden category; `SponsorSettingsPanel.tsx` is the viewer's settings over the player (Sponsors button in the control bar, D-pad navigable); `prefs.ts` holds the viewer's hidden categories and a treatment per category (`auto` = replace when confident, else blur; or always `replace` / `blur`); `config.ts` holds the media source (`MEDIA_SOURCE`: CloudFront or the mock server) and the sponsor-inventory API URL (`prefs.ts` loads and saves each profile's prefs there; `SponsorTreatments.tsx` takes each board's replacement from its inventory slot), the sync offset, viewer defaults (`DEFAULT_HIDDEN`, `DEFAULT_TREATMENTS`) and dev switches (`SYNC_TEST`, `SHOW_BOXES`, `SHOW_STATS`, `SYNC_LOG`). Ground-truth sidecars are always fully confident, so `auto` only replaces: set a category to `blur` to show the blurred texture (demo: gambling replaced, alcohol blurred).
 - `shared/sidecar` is imported as `@Sidecar` (alias in `babel.config.js` and `tsconfig.json`; `metro.config.js` watches `../shared` and resolves its deps from `app/node_modules`).
-- The first live stream (`src/api/liveStreams/staticData/liveStreamDetails.json`) and the player fallback (`EXAMPLE_VIDEO` in `src/screens/VideoPlayerScreen/VideoPlayerScreen.tsx`) play `http://10.0.2.2:8787/media/synth/hls/index.m3u8`. `10.0.2.2` is the host Mac as seen from the Vega Virtual Device.
+- Every title plays the demo clip (`CLIP` in `src/cleansheet/config.ts`) on a loop. The static catalogue JSON is written against the local mock server (`http://10.0.2.2:8787/...`, the host Mac as seen from the Vega Virtual Device); `src/services/apiClient/staticDataClient/utils.ts` rewrites those URLs to the configured media server, CloudFront by default.
 - `lefthook` removed so the sample's git hooks don't get installed into the Cleansheet repo.
-- Catalogue images (static JSON, seek-bar placeholder) come from `assets/ui/` on the mock server (`pipeline/ui_art.py`), not the sample's CDN, whose images show real brands; the app icon is Cleansheet's.
+- Catalogue images (static JSON, seek-bar placeholder) come from `assets/ui/` on the configured media server (`pipeline/ui_art.py`), not the sample's CDN, whose images show real brands; the app icon is Cleansheet's.
 
 ## Build and run
 
@@ -17,15 +17,18 @@ Needs Java 21+ for the Shaka Player build (Homebrew `openjdk@21`) and Node 22+.
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21 PATH="$JAVA_HOME/bin:$HOME/vega/bin:$PATH"
 npm install                    # also clones, patches, and builds Shaka Player into src/w3cmedia/
 npm run build:debug            # -> build/aarch64-debug/keplersportapp_aarch64.vpkg (VVD on Apple Silicon)
-make -C .. serve               # mock CDN on :8787 (separate terminal)
 vega virtual-device start -t 300
 vega device list               # wait until the device shows up before installing
 vega run-app build/aarch64-debug/keplersportapp_aarch64.vpkg
 ```
 
+The app streams from CloudFront and the sponsor-inventory API by default (`MEDIA_SOURCE = 'cloud'` in `src/cleansheet/config.ts`), so nothing else needs to run. To test against local media instead, set `MEDIA_SOURCE = 'local'` and start the mock CDN on :8787 with `make -C .. serve` in a separate terminal.
+
+Use the Virtual Device's default display resolution: with `--display-res=1920,1080`, Vega skips drawing some of the overlay images (friction log entry 23).
+
 Login: debug builds sign in automatically when `app/.env` (git-ignored) sets `REACT_APP_DEV_AUTO_SIGN_IN_EMAIL` and `REACT_APP_DEV_AUTO_SIGN_IN_PASSWORD`; any values work against the static auth data. See `.env.example`.
 
-To reach the synthetic clip after launch: Enter (pick profile), Enter (open the focused live stream), Enter (play). From a script:
+To reach playback after launch: Enter (pick profile), Enter (**Watch Now**), Enter (**Play**). During playback: Down (controls), Down (**Sponsors**), Enter opens the sponsor panel. From a script:
 
 ```sh
 vega exec vda -s emulator-5554 shell "inputd-cli button_press KEY_ENTER"
