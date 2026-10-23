@@ -184,12 +184,12 @@ Decisions to make on the way:
 
 ## 6. Submission Checklist
 
-- [ ] Text description: what it does and how it works
+- [x] Text description: what it does and how it works (paste-ready in `docs/SUBMISSION.md`, not committed)
 - [ ] GitHub repo (public with OSS license, or private shared with reviewers: chris-trag, knmeiss, giolaq, anishamalde, mosesroth, emersonsklar + Devpost)
 - [ ] Demo video < 3 min on YouTube/Vimeo, public, English, running on Vega simulator or device
-- [ ] Product feedback on every tool/API/SDK, including AWS services used
+- [x] Product feedback on every tool/API/SDK, including AWS services used
 - [ ] Track: Fire TV; Mini challenge: AWS Builder (with its required fields)
-- [ ] Optional: feature requests and friction log
+- [x] Optional: feature requests and friction log
 
 ---
 

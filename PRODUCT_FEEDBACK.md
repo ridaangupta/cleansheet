@@ -98,8 +98,6 @@ Each had a quick workaround, and the docs found through the MCP covered the next
 
 ## Would you build with these devices and services again?
 
-_Draft for the team to confirm:_
-
 **Yes.** Vega handled the hard part, a perspective-warped overlay that stays frame-synced with video, using standard React Native and W3C Media APIs, and the sports sample saved days. A screenshot tool and a presented-frame timestamp on the Virtual Device are the two things we'd most want for the next project.
 
 **Yes for AWS:** CloudFront, Lambda function URLs and DynamoDB on-demand were exactly the right size for a per-viewer API and a compressed metadata CDN, at no cost at demo scale.

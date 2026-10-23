@@ -123,6 +123,10 @@ Board positions for the real clips are already annotated (`footage/<clip>.boards
 - **Prefs aren't private.** The demo has no sign-in: profile ids come from the sample's static auth, and anyone with the API URL can read or change a profile's settings.
 - **Fictional sponsors on real boards.** No real brand appears anywhere: the boards in every clip are composited fictional brands, which are easier to detect than real printed signage.
 
+## Next step: real broadcasts
+
+The detector's classes are our fictional brands, and a board's category comes from a brand list, so a gambling brand it has never seen would go unflagged. On real broadcasts we'd split the job in two. A pose model with a single "board" class keeps finding each board's four corners every frame (it can be trained on the real boards already annotated in `footage/`), and a separate step decides what each board is, once per tracked board rather than per frame. The pipeline already straightens every board into a flat image for the blur textures; sending that image to an image-capable classifier (for example TypeSafe's Jev, whose image input is in preview) with the question "gambling, alcohol or neutral?" would return a category with a confidence that feeds **Auto** directly: replace when it's sure, blur when it isn't. Accuracy would then be measured on hand-labelled real footage from several leagues instead of on composites.
+
 ## Repository layout
 
 | Path | What it is |
