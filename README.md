@@ -4,7 +4,7 @@
 
 Built for the Amazon Developer Hackathon "Build, Ship, Shape": **Fire TV track** (Vega OS) and the **AWS Builder** mini challenge.
 
-- Demo video: _link added at submission_
+- Demo video: https://youtu.be/FfFX2mDner0
 - Runs on: the Vega Virtual Device (SDK 0.24), streaming from AWS (CloudFront, Lambda, DynamoDB)
 
 ## What it does
